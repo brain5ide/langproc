@@ -1,3 +1,5 @@
+#
+import math
 # random paketas atsitiktiniam zodziu sudeliojimui
 import random
 
@@ -11,7 +13,7 @@ import itertools
 wordfile = 'wordlists/EN.txt'
 
 # number of words to produce
-wordnum = 10 
+wordnum = 100 
 
 # calculate modified Damerau-Levenshtein distance between to given strings
 # don't calculate insertion and deletion distance
@@ -84,11 +86,11 @@ def possible_words(wlist, crypt):
 # can word be found in scrambled text
 def is_inscrambled(word, crypt):
     num = triplets_match_word(word,crypt)
-    if len(num) >= ((len(word)/3)+1) :
-        perms = list(itertools.permutations(num)) 
+    if (len(num) >= math.ceil(len(word)/3.0)):
+        perms = list(itertools.permutations(num, math.ceil(len(word)/3.0))) 
         for item in perms:
             if re.match(".*"+word+".*",''.join(item)):
-                return True
+                return item
         return False
     else:
         return False
@@ -96,7 +98,11 @@ def is_inscrambled(word, crypt):
 # ignore triplest that have a spacebar in the middle '. .'
 def probable_words(wlist, crypt):
     prob = []
+    cnt = 0
     for item in wlist:
+        if cnt % 10 == 0:
+            print 'Words checked:', cnt, '/', len(wlist), ' Found:', len(prob)
+        cnt = cnt + 1
         if is_inscrambled(item,crypt):
             prob.append(item)
     return prob
@@ -108,16 +114,17 @@ def actual_words(wlist, crypto):
     
     actual_words = []
     for word in prob:
-        if is_inscrambled(word, crypt):
+        word_triplets = is_inscrambled(word, crypt)
+        if word_triplets:
             actual_words.append(word)
-            for o in set(triplets_match_word(word, crypt)):
-                try:
-                    print 'Removing: ', o
-                    # TODO: problema. Istrina tripleta, kuris turi space'a.
-                    # problema tame, kad kitam zodziui jo nelieka
-                    crypt.remove(o)
-                except ValueError:
-                    pass
+            for o in set(word_triplets):
+                if o[0] != ' ' and o[1] != ' ' and o[2] != ' ':
+                    try:
+                        print 'Removing: ', o
+                        crypt.remove(o)
+                    except ValueError:
+                        pass
+    print crypt
     return actual_words
 
 def triplets_match_word(word, crypt):
