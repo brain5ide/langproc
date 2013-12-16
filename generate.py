@@ -10,8 +10,11 @@ wordfile = 'wordlists/EN.txt'
 # number of words to produce
 wordnum = 10
 
-# calculate Damerau-Levenshtein distance between to given strings
-def dam_lev_dist(s1, s2):
+# calculate modified Damerau-Levenshtein distance between to given strings
+# don't calculate insertion and deletion distance
+# by default don't calculate transposition distance but
+#   if trans == True  - calculate transposition distance
+def dam_lev_dist(s1, s2, trans=False):
     d = {}
     lenstr1 = len(s1)
     lenstr2 = len(s2)
@@ -27,13 +30,15 @@ def dam_lev_dist(s1, s2):
             else:
                 cost = 1
             d[(i,j)] = d[(i-1,j-1)] + cost # substitution
-            if i and j and s1[i]==s2[j-1] and s1[i-1] == s2[j]:
-                d[(i, j)] = min (d[(i, j)], d[i-2, j-2] + cost) # transposition
+            if(trans == True):
+                if i and j and s1[i]==s2[j-1] and s1[i-1] == s2[j]:
+                    d[(i, j)] = min (d[(i, j)], d[i-2, j-2] + cost) # transposition
     return d[lenstr1-1,lenstr2-1]
 
 allwords = [w.strip() for w in open(wordfile, "rb").readlines()]
 
-used_words = random.sample(allwords, wordnum)
+words_subset = random.sample(allwords, wordnum*wordnum)
+used_words = random.sample(words_subset, wordnum)
 plaintext = " ".join(used_words)
 
 split_text = re.findall('...?', plaintext) 
@@ -58,3 +63,12 @@ def unscramble(plain, crypt):
                 print 'before: ', before, ' after: ', after
                 crypt[i], crypt[j] = crypt[j], crypt[i]
     return crypt
+
+# pick only words that are possible with given sequence
+def possible_words(wlist, crypt):
+    poss = []
+    for word in wlist:
+        found = any(item in ' '+word+' ' for item in crypt)
+        if found:
+            poss.append(word)
+    return poss
