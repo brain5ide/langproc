@@ -54,8 +54,24 @@ if len(plaintext) % 3 == 2:
 split_text = re.findall('...?', plaintext) 
 crypt_split = split_text[:]
 random.shuffle(crypt_split)
-crypt_text = ''.join(crypt_split) 
 
+def scramble(text):
+    split = re.findall('...?', text)
+    random.shuffle(split)
+    return split
+
+def smart_words(wlist, crypt):
+    cryptset = set(crypt)
+    cryptlist = list(cryptset)
+    perms = [''.join(p).split(' ') for p in itertools.permutations(cryptlist,4)]
+    permwords = [w for sublist in perms for w in sublist]
+    permset = set(permwords)
+    found = []
+    for word in wlist:
+        if word in permset:
+            found.append(word)
+    return found
+    
 def unscramble(plain, crypt):
     plain = list(plain)
     crypt = list(crypt)
@@ -100,7 +116,7 @@ def probable_words(wlist, crypt):
     prob = []
     cnt = 0
     for item in wlist:
-        if cnt % 10 == 0:
+        if cnt % 1000 == 0:
             print 'Words checked:', cnt, '/', len(wlist), ' Found:', len(prob)
         cnt = cnt + 1
         if is_inscrambled(item,crypt):
@@ -118,7 +134,7 @@ def actual_words(wlist, crypto):
         if word_triplets:
             actual_words.append(word)
             for o in set(word_triplets):
-                if o[0] != ' ' and o[1] != ' ' and o[2] != ' ':
+                if (' ' in o) == True:
                     try:
                         print 'Removing: ', o
                         crypt.remove(o)
