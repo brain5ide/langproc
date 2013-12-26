@@ -56,20 +56,85 @@ crypt_split = split_text[:]
 random.shuffle(crypt_split)
 
 def scramble(text):
+    if len(text) % 3 == 1:
+        text = text+'  '
+    if len(text) % 3 == 2:
+        text = text+' '
+        
     split = re.findall('...?', text)
     random.shuffle(split)
     return split
 
-def smart_words(wlist, crypt):
+# function not working
+def true_words(wlist, crypto, permlength=3):
+    crypt = crypto[:]
+    prob = smart_words(wlist, crypt, permlength)
+    prob.sort(lambda x,y: cmp(len(y), len(x)))
+    print prob
+
+    actual_words = []
+    for word in prob:
+        word_triplets = is_inscrambled(word, crypt)
+        if word_triplets:
+            actual_words.append(word)
+            for o in set(word_triplets):
+                if (' ' in o) == True:
+                    try:
+                        print 'Removing: ', o
+                        crypt.remove(o)
+                    except ValueError:
+                        print 'Error: ', o
+                        pass
+    print crypt
+    return actual_words
+
+def used_triplets(word_dict):
+    used = {}
+    for key in word_dict:
+        concat = ''.join(word_dict[key])
+        mobj = re.search(key, concat)
+        used[key] = word_dict[key][int(math.floor(mobj.start()/3)):int(math.floor(mobj.end()/3)+1)]   
+    return used
+    
+def phrases(word_dict):
+    used = {}
+    for keybeg in word_dict:
+        for keyend in word_dict:
+            if word_dict[keybeg][0] == word_dict[keyend][-1]:
+                combo = ''.join(word_dict[keyend])+''.join(word_dict[keybeg][1:])
+                print keyend, word_dict[keyend], keybeg, word_dict[keybeg], combo
+                used[combo] = word_dict[keyend] + word_dict[keybeg][1:]
+    
+    return used
+    
+def filter_possible(word_dict, crypt_list)
+    possible = {}
+    for key in word_dict:
+        
+    
+def smart_words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
     cryptlist = list(cryptset)
-    perms = [''.join(p).split(' ') for p in itertools.permutations(cryptlist,4)]
-    permwords = [w for sublist in perms for w in sublist]
-    permset = set(permwords)
-    found = []
+    print 'Triplet length of scrambled text: ', int(math.ceil(len(crypt)/3.0))
+    print 'Generating triplet permutations of length: ', permlength
+    print 'Number of permutations: ', reduce(lambda x, y: x*y, list(xrange(int(math.ceil(len(crypt)/3.0)),int(math.ceil(len(crypt)/3-permlength-1)),-1)))
+    permutations = [p for p in itertools.permutations(cryptlist,permlength)]
+    print 'Finding words in permutations'
+    perms = [''.join(p) for p in permutations]
+    print 'Making a flat list of permutations'
+    permarr = zip(perms, permutations)
+    permwords = [[w, sublist[1]]  for sublist in permarr for w in sublist[0].strip().split(' ')]
+
+    print 'Generating a dict'
+    permdict = dict((key, value) for [key, value] in permwords)
+    print 'Permutations completed'
+    print 'Number of unique permutations: ', len(permdict)
+    print 'Starting search of known words'
+    found = {}
     for word in wlist:
-        if word in permset:
-            found.append(word)
+        if word in permdict:
+            found[word] = permdict[word]
+    print 'Found', len(found), 'words'
     return found
     
 def unscramble(plain, crypt):
