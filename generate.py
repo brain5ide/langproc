@@ -9,12 +9,6 @@ import re
 # itertools helps to create permutations
 import itertools
 
-# file that contains words
-wordfile = 'wordlists/EN.txt'
-
-# number of words to produce
-wordnum = 100 
-
 # calculate modified Damerau-Levenshtein distance between to given strings
 # don't calculate insertion and deletion distance
 # by default don't calculate transposition distance but
@@ -39,21 +33,6 @@ def dam_lev_dist(s1, s2, trans=False):
                 if i and j and s1[i]==s2[j-1] and s1[i-1] == s2[j]:
                     d[(i, j)] = min (d[(i, j)], d[i-2, j-2] + cost) # transposition
     return d[lenstr1-1,lenstr2-1]
-
-allwords = [w.strip() for w in open(wordfile, "rb").readlines()]
-
-words_subset = random.sample(allwords, wordnum*100)
-used_words = random.sample(words_subset, wordnum)
-plaintext = " ".join(used_words)
-if len(plaintext) % 3 == 1:
-    plaintext = plaintext+'  '
-
-if len(plaintext) % 3 == 2:
-    plaintext = plaintext+' '
-
-split_text = re.findall('...?', plaintext) 
-crypt_split = split_text[:]
-random.shuffle(crypt_split)
 
 def scramble(text):
     if len(text) % 3 == 1:
@@ -106,11 +85,6 @@ def phrases(word_dict):
                 used[combo] = word_dict[keyend] + word_dict[keybeg][1:]
     
     return used
-    
-def filter_possible(word_dict, crypt_list)
-    possible = {}
-    for key in word_dict:
-        
     
 def smart_words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
