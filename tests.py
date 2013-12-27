@@ -13,8 +13,11 @@ def test_dict(plaintext, wlist):
     print 'Testing string: ', plaintext
     scrambled = gen.scramble(plaintext)
     print 'Scrambled: ', ''.join(scrambled)
-    words = gen.smart_words(wlist, scrambled)
+    words = gen.smart_words(wlist, scrambled, 4)
     print 'Words: ', words
+    phrases = gen.phrases(words)
+    print 'Phrases: ', phrases
+    # TODO IN HERE
     print ' '
 
 test_string = 'simple sentence testing scrambled algorithm'
