@@ -61,6 +61,17 @@ def phrases(word_dict):
     return used
 
 
+def used_triplets(word_dict):
+    used = {}
+    for key in word_dict:
+        concat = ''.join(word_dict[key])
+        mobj = re.search(key, concat)
+        wordstart = int(math.floor(mobj.start() / 3))
+        wordend = int(math.floor(mobj.end() / 3)) + 1
+        used[key] = word_dict[key][wordstart:wordend]
+    return used
+
+
 def smart_words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
     cryptlist = list(cryptset)

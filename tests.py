@@ -6,19 +6,22 @@ allwords = [w.strip() for w in open(wordfile, "rb").readlines()]
 
 TEST_COUNT = 0
 
+
 def test_dict(plaintext, wlist):
     global TEST_COUNT
     TEST_COUNT = TEST_COUNT + 1
-    print '------ TEST', TEST_COUNT , '------'
+    print '------ TEST', TEST_COUNT, '------'
     print 'Testing string: ', plaintext
     scrambled = gen.scramble(plaintext)
     print 'Scrambled: ', ''.join(scrambled)
     words = gen.smart_words(wlist, scrambled, 4)
     print 'Words: ', words
-    phrases = gen.phrases(words)
+    used = gen.used_triplets(words)
+    #print 'Used: ', used
+    phrases = gen.phrases(used)
     print 'Phrases: ', phrases
     # TODO IN HERE
     print ' '
 
-test_string = 'simple sentence testing scrambled algorithm'
+test_string = ' simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
