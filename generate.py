@@ -9,13 +9,15 @@ import re
 # itertools helps to create permutations
 import itertools
 
-# calculate modified Damerau-Levenshtein distance between to given strings
-# don't calculate insertion and deletion distance
-# by default don't calculate transposition distance but
-#   if trans == True  - calculate transposition distance
-
 
 def dam_lev_dist(s1, s2, trans=False):
+    """ calculate modified Damerau-Levenshtein distance between to given
+    strings don't calculate insertion and deletion distance
+    by default don't calculate transposition distance but
+    if trans == True  - calculate transposition distance
+
+    """
+
     d = {}
     lenstr1 = len(s1)
     lenstr2 = len(s2)
