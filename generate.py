@@ -77,7 +77,8 @@ def used_triplets(word_dict):
 def smart_words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
     cryptlist = list(cryptset)
-    print 'Triplet length of scrambled text: ', int(math.ceil(len(crypt) / 3.0))
+    tr_length = int(math.ceil(len(crypt) / 3.0))
+    print 'Triplet length of scrambled text: ', tr_length
     print 'Generating triplet permutations of length: ', permlength
     print 'Number of permutations: ', reduce(lambda x, y: x * y, list(xrange(int(math.ceil(len(crypt) / 3.0)), int(math.ceil(len(crypt) / 3 - permlength - 1)), -1)))
     permutations = [p for p in itertools.permutations(cryptlist, permlength)]
