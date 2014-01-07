@@ -41,19 +41,11 @@ def dam_lev_dist(s1, s2, trans=False):
     return d[lenstr1 - 1, lenstr2 - 1]
 
 def fit_wordset(words, tripletPool, start=''):
-    global deep
-    global dbgprint
-    deep = deep + '    '
-
     LeftInPool = len(tripletPool)
 
     word_dict = words.copy()
     result = []
-    pool = tripletPool[:]
-    #print deep, 'fit_wordset, start: ', start
     for key in word_dict:
-        if start == '' and word_dict[key][0][1] == ' ':
-            continue
         if start != '' and word_dict[key][0] != start:
             continue
         tripletsInPool = True
@@ -61,37 +53,28 @@ def fit_wordset(words, tripletPool, start=''):
             if triplet not in tripletPool:
                 tripletsInPool = False
         if tripletsInPool is True:
-            # since word is found and we have it's messy beginning - remove it
-            # from pool
-            if start != '':
-                pool = [y for y in pool if y != start]
             tryword = word_dict[key]
-            print deep, 'Pool:', pool
-            print deep, 'Removing: ', key
-            # remove word from dictionary
             word_dic = word_dict.copy()
             del(word_dic[key])
-            # remove triplets from pool (except the possible overlaps)
-            newPool = [y for y in pool if y not in tryword or (y[1] == ' ' and y[0] != ' ' and y[-1] != ' ')]
-            # call fit_wordset recursively
-            # if last triplet contains space - use it for the first in next
-            # word
-            if ' ' in tryword[-1] and tryword[-1][-1] != ' ':
-                arranged, pleft = fit_wordset(word_dic, newPool, tryword[-1])
-            else:
+            newPool = [y for y in tripletPool if y not in tryword]
+            all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
+            two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);\-]', tryword[-1])
+            one_a = re.match('[a-zA-Z][ .,?!\(\);\-][ .,?!\(\);\-]', tryword[-1])
+            if all_a or two_a or one_a :
                 arranged, pleft = fit_wordset(word_dic, newPool)
+            else:
+                arranged, pleft = fit_wordset(word_dic, newPool, tryword[-1])
+
             if pleft < LeftInPool:
                 result = []
                 LeftInPool = pleft
 
             if pleft == LeftInPool:
                 for item in arranged:
-                    result.append(tryword + item)
+                    result.append([tryword + item[0], [key] + item[1]])
 
             if len(arranged) == 0:
-                result.append(tryword)
-            print deep, 'Leftinpool:', LeftInPool, 'newPool', newPool, 'tryword', tryword
-    deep = deep[:-4]
+                result.append([tryword, [key]])
     return result, LeftInPool
 
 

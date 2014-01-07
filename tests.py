@@ -1,4 +1,5 @@
 import generate as gen
+import re
 
 wordfile = 'wordlists/EN.txt'
 
@@ -20,9 +21,19 @@ def test_dict(plaintext, wlist):
     #print 'Used: ', used
     #phrases = gen.phrases(used)
     retrieved, left = gen.fit_wordset(used, scrambled)
-    print 'Retrieved: ', retrieved
+    #print 'Retrieved: ', retrieved
     for item in retrieved:
-        print 'String: ', ''.join(item), item, left
+        joined = ''.join(item[0])
+        if '  ' in joined[:-2]:
+            continue
+        found = True
+        for inword in item[1]:
+            if not re.search(r'\b'+inword+r'\b', joined):
+                found = False
+
+        if found is True:
+            print 'String: ', joined, left
+    print 'Answers: ', len(retrieved)
 
    #print 'Phrases: '
     #print_phrase(phrases)
