@@ -9,6 +9,7 @@ import re
 # itertools helps to create permutations
 import itertools
 
+deep = ''
 
 def dam_lev_dist(s1, s2, trans=False):
     """ calculate modified Damerau-Levenshtein distance between to given
@@ -40,13 +41,17 @@ def dam_lev_dist(s1, s2, trans=False):
     return d[lenstr1 - 1, lenstr2 - 1]
 
 
-def fit_wordset(word_dict, tripletPool, start=''):
+def fit_wordset(words, tripletPool, start=''):
+    global deep
+    deep = deep + '    '
+    word_dict = words.copy()
+    result = []
     pool = tripletPool[:]
-    print 'fit_wordset, start: ', start
+    print deep, 'fit_wordset, start: ', start
     for key in word_dict:
-        if start == '' and ' ' in word_dict[key][0]:
+        if start == '' and word_dict[key][0][1] == ' ':
             continue
-        if start != '' and word_dict[key][0] != start:
+        if start != '' and word_dict[key][0] != start and start[2] != ' ':
             continue
         tripletsInPool = True
         for triplet in word_dict[key]:
@@ -55,22 +60,27 @@ def fit_wordset(word_dict, tripletPool, start=''):
         if tripletsInPool is True:
             if start != '':
                 pool = [y for y in pool if y != start]
-            print 'Pool:', pool
+            print deep, 'Pool:', pool
             tryword = word_dict[key]
-            print 'Removing: ', key
+            print deep, 'Removing: ', key
             # remove word from dictionary
-            del(word_dict[key])
+            word_dic = word_dict.copy()
+            del(word_dic[key])
             # remove triplets from pool (except the possible overlaps)
             newPool = [y for y in pool if y not in tryword or ' ' in y]
             # call fit_wordset recursively
             # if last triplet contains space - use it for the first in next
             # word
             if ' ' in tryword[-1]:
-                arranged = fit_wordset(word_dict, newPool, tryword[-1])[1:]
+                arranged = fit_wordset(word_dic, newPool, tryword[-1])[1:]
             else:
-                arranged = fit_wordset(word_dict, newPool)
-            return tryword + arranged
-    return tuple()
+                arranged = fit_wordset(word_dic, newPool)
+            for item in arranged:
+                result.append(tryword + item)
+            if len(arranged) == 0:
+                result.append(tryword)
+    deep = deep[:-4]
+    return result
 
 
 def print_keys(dictionary):

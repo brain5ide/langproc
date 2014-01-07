@@ -21,7 +21,8 @@ def test_dict(plaintext, wlist):
     #phrases = gen.phrases(used)
     retrieved = gen.fit_wordset(used, scrambled)
     print 'Retrieved: ', retrieved
-    print 'String: ', ''.join(retrieved)
+    for item in retrieved:
+        print 'String: ', ''.join(item), item
 
    #print 'Phrases: '
     #print_phrase(phrases)
@@ -37,5 +38,5 @@ def print_phrase(word_dict):
     #    print 'Phrase: ', key, word_dict[key]
     print '# of phrases: ', len(word_dict), len(set(word_dict))
 
-test_string = ' simple sentence testing scrambled algorithm'
+test_string = 'simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
