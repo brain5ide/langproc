@@ -15,13 +15,27 @@ def test_dict(plaintext, wlist):
     scrambled = gen.scramble(plaintext)
     print 'Scrambled: ', ''.join(scrambled)
     words = gen.smart_words(wlist, scrambled, 4)
-    print 'Words: ', words
     used = gen.used_triplets(words)
+    print 'Words: ', used
     #print 'Used: ', used
-    phrases = gen.phrases(used)
-    print 'Phrases: ', phrases
-    # TODO IN HERE
+    #phrases = gen.phrases(used)
+    retrieved = gen.fit_wordset(used, scrambled)
+    print 'Retrieved: ', retrieved
+    print 'String: ', ''.join(retrieved)
+
+   #print 'Phrases: '
+    #print_phrase(phrases)
+    #phrases = gen.phrases(phrases)
+    #print 'Phrases: '
+    #print_phrase(phrases)
+    ## TODO IN HERE
     print ' '
+
+
+def print_phrase(word_dict):
+    #for key in word_dict:
+    #    print 'Phrase: ', key, word_dict[key]
+    print '# of phrases: ', len(word_dict), len(set(word_dict))
 
 test_string = ' simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)

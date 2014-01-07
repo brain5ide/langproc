@@ -40,6 +40,43 @@ def dam_lev_dist(s1, s2, trans=False):
     return d[lenstr1 - 1, lenstr2 - 1]
 
 
+def fit_wordset(word_dict, tripletPool, start=''):
+    pool = tripletPool[:]
+    print 'fit_wordset, start: ', start
+    for key in word_dict:
+        if start == '' and ' ' in word_dict[key][0]:
+            continue
+        if start != '' and word_dict[key][0] != start:
+            continue
+        tripletsInPool = True
+        for triplet in word_dict[key]:
+            if triplet not in tripletPool:
+                tripletsInPool = False
+        if tripletsInPool is True:
+            if start != '':
+                pool = [y for y in pool if y != start]
+            print 'Pool:', pool
+            tryword = word_dict[key]
+            print 'Removing: ', key
+            # remove word from dictionary
+            del(word_dict[key])
+            # remove triplets from pool (except the possible overlaps)
+            newPool = [y for y in pool if y not in tryword or ' ' in y]
+            # call fit_wordset recursively
+            # if last triplet contains space - use it for the first in next
+            # word
+            if ' ' in tryword[-1]:
+                arranged = fit_wordset(word_dict, newPool, tryword[-1])[1:]
+            else:
+                arranged = fit_wordset(word_dict, newPool)
+            return tryword + arranged
+    return tuple()
+
+
+def print_keys(dictionary):
+    for key in dictionary:
+        print '--', key
+
 def scramble(text):
     if len(text) % 3 == 1:
         text = text + '  '
@@ -52,14 +89,18 @@ def scramble(text):
 
 
 def phrases(word_dict):
+    """ produces possible phrases out of words based on a common triplet """
     used = {}
     for keybeg in word_dict:
         for keyend in word_dict:
             if word_dict[keybeg][0] == word_dict[keyend][-1]:
-                combo = ''.join(word_dict[keyend]) + ''.join(word_dict[keybeg][1:])
-                print keyend, word_dict[keyend], keybeg, word_dict[keybeg], combo
-                used[combo] = word_dict[keyend] + word_dict[keybeg][1:]
+                if ' ' in word_dict[keybeg][0]:
+                    partA = ''.join(word_dict[keyend])
+                    partB = ''.join(word_dict[keybeg][1:])
+                    combo = partA + partB
+                    used[combo] = word_dict[keyend] + word_dict[keybeg][1:]
 
+    print 'Possible phrases found: ', len(used)
     return used
 
 
