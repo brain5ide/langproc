@@ -19,10 +19,10 @@ def test_dict(plaintext, wlist):
     print 'Words: ', used
     #print 'Used: ', used
     #phrases = gen.phrases(used)
-    retrieved = gen.fit_wordset(used, scrambled)
+    retrieved, left = gen.fit_wordset(used, scrambled)
     print 'Retrieved: ', retrieved
     for item in retrieved:
-        print 'String: ', ''.join(item), item
+        print 'String: ', ''.join(item), item, left
 
    #print 'Phrases: '
     #print_phrase(phrases)

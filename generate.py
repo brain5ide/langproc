@@ -40,47 +40,59 @@ def dam_lev_dist(s1, s2, trans=False):
                     d[(i, j)] = min(d[(i, j)], d[i - 2, j - 2] + cost)
     return d[lenstr1 - 1, lenstr2 - 1]
 
-
 def fit_wordset(words, tripletPool, start=''):
     global deep
+    global dbgprint
     deep = deep + '    '
+
+    LeftInPool = len(tripletPool)
+
     word_dict = words.copy()
     result = []
     pool = tripletPool[:]
-    print deep, 'fit_wordset, start: ', start
+    #print deep, 'fit_wordset, start: ', start
     for key in word_dict:
         if start == '' and word_dict[key][0][1] == ' ':
             continue
-        if start != '' and word_dict[key][0] != start and start[2] != ' ':
+        if start != '' and word_dict[key][0] != start:
             continue
         tripletsInPool = True
         for triplet in word_dict[key]:
             if triplet not in tripletPool:
                 tripletsInPool = False
         if tripletsInPool is True:
+            # since word is found and we have it's messy beginning - remove it
+            # from pool
             if start != '':
                 pool = [y for y in pool if y != start]
-            print deep, 'Pool:', pool
             tryword = word_dict[key]
+            print deep, 'Pool:', pool
             print deep, 'Removing: ', key
             # remove word from dictionary
             word_dic = word_dict.copy()
             del(word_dic[key])
             # remove triplets from pool (except the possible overlaps)
-            newPool = [y for y in pool if y not in tryword or ' ' in y]
+            newPool = [y for y in pool if y not in tryword or (y[1] == ' ' and y[0] != ' ' and y[-1] != ' ')]
             # call fit_wordset recursively
             # if last triplet contains space - use it for the first in next
             # word
-            if ' ' in tryword[-1]:
-                arranged = fit_wordset(word_dic, newPool, tryword[-1])[1:]
+            if ' ' in tryword[-1] and tryword[-1][-1] != ' ':
+                arranged, pleft = fit_wordset(word_dic, newPool, tryword[-1])
             else:
-                arranged = fit_wordset(word_dic, newPool)
-            for item in arranged:
-                result.append(tryword + item)
+                arranged, pleft = fit_wordset(word_dic, newPool)
+            if pleft < LeftInPool:
+                result = []
+                LeftInPool = pleft
+
+            if pleft == LeftInPool:
+                for item in arranged:
+                    result.append(tryword + item)
+
             if len(arranged) == 0:
                 result.append(tryword)
+            print deep, 'Leftinpool:', LeftInPool, 'newPool', newPool, 'tryword', tryword
     deep = deep[:-4]
-    return result
+    return result, LeftInPool
 
 
 def print_keys(dictionary):
@@ -120,7 +132,9 @@ def used_triplets(word_dict):
         concat = ''.join(word_dict[key])
         mobj = re.search(key, concat)
         wordstart = int(math.floor(mobj.start() / 3))
-        wordend = int(math.floor(mobj.end() / 3)) + 1
+        wordend = int(math.floor(mobj.end() / 3))
+        if mobj.end() % 3 != 0:
+            wordend += 1
         used[key] = word_dict[key][wordstart:wordend]
     return used
 
