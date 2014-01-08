@@ -1,3 +1,4 @@
+import pdb
 #
 import math
 # random paketas atsitiktiniam zodziu sudeliojimui
@@ -41,11 +42,14 @@ def dam_lev_dist(s1, s2, trans=False):
     return d[lenstr1 - 1, lenstr2 - 1]
 
 def fit_wordset(words, tripletPool, start=''):
+    global deep
+    deep = deep+'  '
     LeftInPool = len(tripletPool)
 
     word_dict = words.copy()
     result = []
     for key in word_dict:
+        print deep, key, word_dict[key], tripletPool, start
         if start != '' and word_dict[key][0] != start:
             continue
         tripletsInPool = True
@@ -75,6 +79,7 @@ def fit_wordset(words, tripletPool, start=''):
 
             if len(arranged) == 0:
                 result.append([tryword, [key]])
+    deep = deep[:-2]
     return result, LeftInPool
 
 
@@ -91,22 +96,6 @@ def scramble(text):
     split = re.findall('...?', text)
     random.shuffle(split)
     return split
-
-
-def phrases(word_dict):
-    """ produces possible phrases out of words based on a common triplet """
-    used = {}
-    for keybeg in word_dict:
-        for keyend in word_dict:
-            if word_dict[keybeg][0] == word_dict[keyend][-1]:
-                if ' ' in word_dict[keybeg][0]:
-                    partA = ''.join(word_dict[keyend])
-                    partB = ''.join(word_dict[keybeg][1:])
-                    combo = partA + partB
-                    used[combo] = word_dict[keyend] + word_dict[keybeg][1:]
-
-    print 'Possible phrases found: ', len(used)
-    return used
 
 
 def used_triplets(word_dict):

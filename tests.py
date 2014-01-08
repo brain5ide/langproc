@@ -19,7 +19,6 @@ def test_dict(plaintext, wlist):
     used = gen.used_triplets(words)
     print 'Words: ', used
     #print 'Used: ', used
-    #phrases = gen.phrases(used)
     retrieved, left = gen.fit_wordset(used, scrambled)
     #print 'Retrieved: ', retrieved
     for item in retrieved:
@@ -35,19 +34,8 @@ def test_dict(plaintext, wlist):
             print 'String: ', joined, left
     print 'Answers: ', len(retrieved)
 
-   #print 'Phrases: '
-    #print_phrase(phrases)
-    #phrases = gen.phrases(phrases)
-    #print 'Phrases: '
-    #print_phrase(phrases)
     ## TODO IN HERE
     print ' '
 
-
-def print_phrase(word_dict):
-    #for key in word_dict:
-    #    print 'Phrase: ', key, word_dict[key]
-    print '# of phrases: ', len(word_dict), len(set(word_dict))
-
-test_string = 'simple sentence testing scrambled algorithm'
+test_string = ' simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
