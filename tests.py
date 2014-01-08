@@ -40,3 +40,4 @@ def test_dict(plaintext, wlist):
 
 test_string = ' simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
+#gen.triplet_permutations(gen.symbols, allwords)

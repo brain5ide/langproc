@@ -12,6 +12,60 @@ import itertools
 
 deep = ''
 
+symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
+
+def triplet_permutations(syms, wordlist):
+    punct = '[ .,?!\(\);:\-]'
+    symperm = itertools.permutations(syms, 3)
+    symlist = [''.join(p) for p in symperm]
+    symdict = dict((key, []) for key in symlist)
+
+    found = 0
+    alnum = [key for key in symdict if re.match('[a-z][a-z][a-z]', key)]
+    end1 = [key for key in symdict if re.match('[a-z]'+punct+punct, key)]
+    end2 = [key for key in symdict if re.match('[a-z][a-z]'+punct, key)]
+    beg1 = [key for key in symdict if re.match(punct+'[a-z][a-z]', key)]
+    beg2 = [key for key in symdict if re.match(punct+punct+'[a-z]', key)]
+
+    print 'all: ', len(symdict)
+    print 'alnum: ', len(alnum)
+    print 'end1: ', len(end1)
+    print 'end2: ', len(end2)
+    print 'beg1: ', len(beg1)
+    print 'beg2: ', len(beg2)
+
+    wordnum = 0
+    for word in wordlist:
+        wordnum += 1
+        print wordnum, found
+        for key in alnum:
+            # if all symbols are alphanumeric
+            if key in word:
+                symdict[key].append(word)
+                found += 1
+                #print 'alnum', found
+        for key in end1:
+            if key[0] == word[-1]:
+                symdict[key].append(word)
+                found += 1
+                #print 'end1', found
+        for key in end2:
+            if key[0:2] == word[-2:]:
+                symdict[key].append(word)
+                found += 1
+                #print 'end2', found
+        for key in beg1:
+            if key[2] == word[0]:
+                symdict[key].append(word)
+                found += 1
+                #print 'beg1', found
+        for key in beg2:
+            if key[1:] == word[0:2]:
+                symdict[key].append(word)
+                found += 1
+                #print 'beg2', found
+    print found
+
 def dam_lev_dist(s1, s2, trans=False):
     """ calculate modified Damerau-Levenshtein distance between to given
     strings don't calculate insertion and deletion distance
@@ -68,8 +122,8 @@ def fit_wordset(words, tripletPool, start=''):
             del(word_dic[key])
             newPool = [y for y in tripletPool if y not in tryword]
             all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
-            two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);\-]', tryword[-1])
-            one_a = re.match('[a-zA-Z][ .,?!\(\);\-][ .,?!\(\);\-]', tryword[-1])
+            two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);:\-]', tryword[-1])
+            one_a = re.match('[a-zA-Z][ .,?!\(\);:\-][ .,?!\(\);:\-]', tryword[-1])
             if all_a or two_a or one_a:
                 connecting_triplet = ''
             else:
@@ -135,7 +189,9 @@ def smart_words(wlist, crypt, permlength=3):
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
     permwords = [[w, sublist[1]] for sublist in permarr for w in sublist[0].strip().split(' ')]
-
+    for word in permwords:
+        if word[0] == 'simple':
+            print 'simple', word[1]
     print 'Generating a dict'
     permdict = dict((key, value) for [key, value] in permwords)
     print 'Permutations completed'
