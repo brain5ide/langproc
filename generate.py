@@ -49,11 +49,17 @@ def fit_wordset(words, tripletPool, start=''):
     word_dict = words.copy()
     result = []
     for key in word_dict:
-        print deep, key, word_dict[key], tripletPool, start
+        #print deep, key, word_dict[key], tripletPool, start
         if start != '' and word_dict[key][0] != start:
             continue
         tripletsInPool = True
-        for triplet in word_dict[key]:
+
+        if start != '':
+            word_triplets = word_dict[key][1:]
+        else:
+            word_triplets = word_dict[key]
+
+        for triplet in word_triplets:
             if triplet not in tripletPool:
                 tripletsInPool = False
         if tripletsInPool is True:
@@ -64,10 +70,12 @@ def fit_wordset(words, tripletPool, start=''):
             all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
             two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);\-]', tryword[-1])
             one_a = re.match('[a-zA-Z][ .,?!\(\);\-][ .,?!\(\);\-]', tryword[-1])
-            if all_a or two_a or one_a :
-                arranged, pleft = fit_wordset(word_dic, newPool)
+            if all_a or two_a or one_a:
+                connecting_triplet = ''
             else:
-                arranged, pleft = fit_wordset(word_dic, newPool, tryword[-1])
+                connecting_triplet = tryword[-1]
+
+            arranged, pleft = fit_wordset(word_dic, newPool, connecting_triplet)
 
             if pleft < LeftInPool:
                 result = []
@@ -75,7 +83,10 @@ def fit_wordset(words, tripletPool, start=''):
 
             if pleft == LeftInPool:
                 for item in arranged:
-                    result.append([tryword + item[0], [key] + item[1]])
+                    if connecting_triplet == '':
+                        result.append([tryword + item[0], [key] + item[1]])
+                    else:
+                        result.append([tryword[:-1] + item[0], [key] + item[1]])
 
             if len(arranged) == 0:
                 result.append([tryword, [key]])
