@@ -17,10 +17,10 @@ def test_dict(plaintext, wlist):
     print 'Scrambled: ', ''.join(scrambled)
     words = gen.smart_words(wlist, scrambled, 4)
     print 'ALl words: ', words
-    used = gen.used_triplets(words)
-    print 'Words: ', used
+    #used = gen.used_triplets(words)
+    #print 'Words: ', used
     #print 'Used: ', used
-    retrieved, left = gen.fit_wordset(used, scrambled)
+    retrieved, left = gen.fit_wordset(words, scrambled)
     #print 'Retrieved: ', retrieved
     for item in retrieved:
         joined = ''.join(item[0])

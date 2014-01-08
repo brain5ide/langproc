@@ -103,47 +103,48 @@ def fit_wordset(words, tripletPool, start=''):
     word_dict = words.copy()
     result = []
     for key in word_dict:
-        #print deep, key, word_dict[key], tripletPool, start
-        if start != '' and word_dict[key][0] != start:
-            continue
-        tripletsInPool = True
+        for word in word_dict[key]:
+            #print deep, key, word_dict[key], tripletPool, start
+            if start != '' and word[0] != start:
+                continue
+            tripletsInPool = True
 
-        if start != '':
-            word_triplets = word_dict[key][1:]
-        else:
-            word_triplets = word_dict[key]
-
-        for triplet in word_triplets:
-            if triplet not in tripletPool:
-                tripletsInPool = False
-        if tripletsInPool is True:
-            tryword = word_dict[key]
-            word_dic = word_dict.copy()
-            del(word_dic[key])
-            newPool = [y for y in tripletPool if y not in tryword]
-            all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
-            two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);:\-]', tryword[-1])
-            one_a = re.match('[a-zA-Z][ .,?!\(\);:\-][ .,?!\(\);:\-]', tryword[-1])
-            if all_a or two_a or one_a:
-                connecting_triplet = ''
+            if start != '':
+                word_triplets = word[1:]
             else:
-                connecting_triplet = tryword[-1]
+                word_triplets = word
 
-            arranged, pleft = fit_wordset(word_dic, newPool, connecting_triplet)
+            for triplet in word_triplets:
+                if triplet not in tripletPool:
+                    tripletsInPool = False
+            if tripletsInPool is True:
+                tryword = word
+                word_dic = word_dict.copy()
+                del(word_dic[key])
+                newPool = [y for y in tripletPool if y not in tryword]
+                all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
+                two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);:\-]', tryword[-1])
+                one_a = re.match('[a-zA-Z][ .,?!\(\);:\-][ .,?!\(\);:\-]', tryword[-1])
+                if all_a or two_a or one_a:
+                    connecting_triplet = ''
+                else:
+                    connecting_triplet = tryword[-1]
 
-            if pleft < LeftInPool:
-                result = []
-                LeftInPool = pleft
+                arranged, pleft = fit_wordset(word_dic, newPool, connecting_triplet)
 
-            if pleft == LeftInPool:
-                for item in arranged:
-                    if connecting_triplet == '':
-                        result.append([tryword + item[0], [key] + item[1]])
-                    else:
-                        result.append([tryword[:-1] + item[0], [key] + item[1]])
+                if pleft < LeftInPool:
+                    result = []
+                    LeftInPool = pleft
 
-            if len(arranged) == 0:
-                result.append([tryword, [key]])
+                if pleft == LeftInPool:
+                    for item in arranged:
+                        if connecting_triplet == '':
+                            result.append([tryword + item[0], [key] + item[1]])
+                        else:
+                            result.append([tryword[:-1] + item[0], [key] + item[1]])
+
+                if len(arranged) == 0:
+                    result.append([tryword, [key]])
     deep = deep[:-2]
     return result, LeftInPool
 
@@ -189,11 +190,23 @@ def smart_words(wlist, crypt, permlength=3):
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
     permwords = [[w, sublist[1]] for sublist in permarr for w in sublist[0].strip().split(' ')]
-    for word in permwords:
-        if word[0] == 'simple':
-            print 'simple', word[1]
     print 'Generating a dict'
-    permdict = dict((key, value) for [key, value] in permwords)
+    permdict = {}
+    for key, value in permwords:
+        concat = ''.join(value)
+        mobj = re.search(key, concat)
+        wordstart = int(math.floor(mobj.start() / 3))
+        wordend = int(math.floor(mobj.end() / 3))
+        if mobj.end() % 3 != 0:
+            wordend += 1
+        cleanword = value[wordstart:wordend]
+        if key in permdict:
+            if cleanword not in permdict[key]:
+                permdict[key] = permdict[key] + [cleanword]
+        else:
+            permdict[key] = [cleanword]
+
+    #permdict = dict((key, value) for [key, value] in permwords)
     print 'Permutations completed'
     print 'Number of unique permutations: ', len(permdict)
     print 'Starting search of known words'
@@ -203,3 +216,5 @@ def smart_words(wlist, crypt, permlength=3):
             found[word] = permdict[word]
     print 'Found', len(found), 'words'
     return found
+
+
