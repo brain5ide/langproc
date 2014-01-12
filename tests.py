@@ -16,7 +16,7 @@ def test_dict(plaintext, wlist):
     scrambled = gen.scramble(plaintext)
     print 'Scrambled: ', ''.join(scrambled)
     words = gen.smart_words(wlist, scrambled, 4)
-    print 'ALl words: ', words
+    print 'All words: ', words
     #used = gen.used_triplets(words)
     #print 'Words: ', used
     #print 'Used: ', used
@@ -38,6 +38,6 @@ def test_dict(plaintext, wlist):
     ## TODO IN HERE
     print ' '
 
-test_string = ' simple sentence testing scrambled algorithm'
+test_string = 'simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
 #gen.triplet_permutations(gen.symbols, allwords)

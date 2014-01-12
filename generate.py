@@ -198,7 +198,6 @@ def smart_words(wlist, crypt, permlength=3):
         permutations = [p for p in itertools.permutations(cryptlist, permlength)]
     print 'Finding words in permutations'
     perms = [''.join(p) for p in permutations]
-    print 'Perms', perms
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
     permwords = [[w, sublist[1]] for sublist in permarr for w in sublist[0].strip().split(' ')]
