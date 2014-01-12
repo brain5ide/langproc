@@ -97,14 +97,17 @@ def dam_lev_dist(s1, s2, trans=False):
 
 def fit_wordset(words, tripletPool, start=''):
     global deep
-    deep = deep+'  '
     LeftInPool = len(tripletPool)
 
+    dset = False
     word_dict = words.copy()
     result = []
     for key in word_dict:
         for word in word_dict[key]:
-            #print deep, key, word_dict[key], tripletPool, start
+            if dset is not True:
+                deep = deep+'->'+key.zfill(10)
+                dset = True
+            print deep, key, word_dict[key], tripletPool, start
             if start != '' and word[0] != start:
                 continue
             tripletsInPool = True
@@ -120,8 +123,12 @@ def fit_wordset(words, tripletPool, start=''):
             if tripletsInPool is True:
                 tryword = word
                 word_dic = word_dict.copy()
-                del(word_dic[key])
-                newPool = [y for y in tripletPool if y not in tryword]
+                #del(word_dic[key])
+                newPool = tripletPool[:]
+                for y in tryword:
+                    if y in newPool:
+                        newPool.remove(y)
+
                 all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
                 two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);:\-]', tryword[-1])
                 one_a = re.match('[a-zA-Z][ .,?!\(\);:\-][ .,?!\(\);:\-]', tryword[-1])
@@ -145,7 +152,8 @@ def fit_wordset(words, tripletPool, start=''):
 
                 if len(arranged) == 0:
                     result.append([tryword, [key]])
-    deep = deep[:-2]
+    deep = deep[:-12]
+    dset = True
     return result, LeftInPool
 
 
@@ -180,7 +188,7 @@ def used_triplets(word_dict):
 def smart_words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
     cryptlist = list(cryptset)
-    tr_length = int(math.ceil(len(crypt) / 3.0))
+    tr_length = int(math.ceil(len(crypt)))
     print 'Triplet length of scrambled text: ', tr_length
     print 'Generating triplet permutations of length: ', permlength
     print 'Number of permutations: ', reduce(lambda x, y: x * y, list(xrange(int(math.ceil(len(crypt) / 3.0)), int(math.ceil(len(crypt) / 3 - permlength - 1)), -1)))
