@@ -192,9 +192,13 @@ def smart_words(wlist, crypt, permlength=3):
     print 'Triplet length of scrambled text: ', tr_length
     print 'Generating triplet permutations of length: ', permlength
     print 'Number of permutations: ', reduce(lambda x, y: x * y, list(xrange(int(math.ceil(len(crypt) / 3.0)), int(math.ceil(len(crypt) / 3 - permlength - 1)), -1)))
-    permutations = [p for p in itertools.permutations(cryptlist, permlength)]
+    if len(crypt) <= permlength:
+        permutations = [p for p in itertools.permutations(cryptlist)]
+    else:
+        permutations = [p for p in itertools.permutations(cryptlist, permlength)]
     print 'Finding words in permutations'
     perms = [''.join(p) for p in permutations]
+    print 'Perms', perms
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
     permwords = [[w, sublist[1]] for sublist in permarr for w in sublist[0].strip().split(' ')]
