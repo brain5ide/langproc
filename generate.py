@@ -205,7 +205,8 @@ def smart_words(wlist, crypt, permlength=3):
     permdict = {}
     for key, value in permwords:
         concat = ''.join(value)
-        mobj = re.search(key, concat)
+        key = key.lower()
+        mobj = re.search(key, concat.lower())
         wordstart = int(math.floor(mobj.start() / 3))
         wordend = int(math.floor(mobj.end() / 3))
         if mobj.end() % 3 != 0:
