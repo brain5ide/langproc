@@ -104,10 +104,7 @@ def fit_wordset(words, tripletPool, start=''):
     result = []
     for key in word_dict:
         for word in word_dict[key]:
-            if dset is not True:
-                deep = deep+'->'+key.zfill(10)
-                dset = True
-            print deep, key, word_dict[key], tripletPool, start
+
             if start != '' and word[0] != start:
                 continue
             tripletsInPool = True
@@ -121,9 +118,13 @@ def fit_wordset(words, tripletPool, start=''):
                 if triplet not in tripletPool:
                     tripletsInPool = False
             if tripletsInPool is True:
+                if dset is not True:
+                    deep = deep+'->'+key
+                    dset = True
+                print deep, key, word_dict[key], tripletPool, start
                 tryword = word
+
                 word_dic = word_dict.copy()
-                #del(word_dic[key])
                 newPool = tripletPool[:]
                 for y in tryword:
                     if y in newPool:
@@ -152,7 +153,7 @@ def fit_wordset(words, tripletPool, start=''):
 
                 if len(arranged) == 0:
                     result.append([tryword, [key]])
-    deep = deep[:-12]
+    deep = deep[:deep.rfind("->")]
     dset = True
     return result, LeftInPool
 
