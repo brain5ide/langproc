@@ -28,7 +28,8 @@ def test_dict(plaintext, wlist):
             continue
         found = True
         for inword in item[1]:
-            if not re.search(r'\b'+inword+r'\b', joined, re.IGNORECASE):
+            pattern = r'\b' + inword + r'\b'
+            if not re.search(pattern, joined, re.IGNORECASE):
                 found = False
 
         if found is True:
@@ -40,4 +41,6 @@ def test_dict(plaintext, wlist):
 
 test_string = 'Simple sentence testing scrambled algorithm'
 test_dict(test_string, allwords)
-#gen.triplet_permutations(gen.symbols, allwords)
+
+test_string = 'Small stepping woman makes mankind giant leaps'
+test_dict(test_string, allwords)
