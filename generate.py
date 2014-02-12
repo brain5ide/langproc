@@ -15,7 +15,7 @@ import pprint
 deep = ''
 
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
-punc = ' .,?!\(\);:\-'
+punc = '.,?!\(\);:\-'
 
 
 def triplet_permutations(syms, wordlist):
@@ -259,6 +259,19 @@ def phrase_end(word_dict):
                     newdict[key] = newdict[key] + [item]
     return newdict
 
+def phrase_mid(word_dict):
+    """ pick phrases from dict that are middle of a longer phrase """
+    newdict = {}
+    for key in word_dict:
+        for item in word_dict[key]:
+            if re.match('[A-Za-z][ ][A-Za-z]', item[-1]) or re.match('[A-Za-z][ ][A-Za-z]', item[0]):
+                continue;
+            if key not in newdict:
+                newdict[key] = [item]
+            else:
+                newdict[key] = newdict[key] + [item]
+    return newdict
+
 def phrases(word_dict):
     phrases = {}
     for key in word_dict:
@@ -274,6 +287,34 @@ def phrases(word_dict):
                                 phrases[joinkey] = phrases[joinkey] + [item + item2[1:]]
 
     return phrases
+
+def loose_phrases2(word_dict):
+    global punc
+    phrases = {}
+    for key1 in word_dict:
+        for item in word_dict[key1]:
+            if re.match('[A-Za-z][A-Za-z' + punc +'][A-Za-z ' + punc +']', item[-1]):
+                for key2 in word_dict:
+                    for item2 in word_dict[key2]:
+                        if re.match('[ ' + punc + '][A-Za-z ' + punc + '][A-Za-z]', item2[0]):
+                            joinkey = key1+key2
+                            if joinkey not in phrases:
+                                phrases[joinkey] = [item + item2]
+                            else:
+                                phrases[joinkey] = phrases[joinkey] + [item + item2]
+    return phrases
+
+def loose_phrases(word_dict):
+    res = {key1+key2: [item1+item2 if True in [items_match(item1, item2)] else ('  ', '  ') for item1 in word_dict[key1] for item2 in word_dict[key2]] for key1 in word_dict for key2 in word_dict}
+    return res
+
+def items_match(item1, item2):
+    if not re.match('[A-Za-z][A-Za-z' + punc +'][A-Za-z ' + punc + ']', item1[-1]):
+        return False
+    if not re.match('[ ' + punc +'][A-Za-z ' + punc + '][A-Za-z]', item2[0]):
+        return False
+
+    return True
 
 def phrase_possible(phrase, triplets):
     """ you give it a phrase and a list of triplets and it checks if
@@ -314,9 +355,35 @@ def max_phraselen(phrases):
             if ln == maxlen:
                 maxphrase.append(phrases[phr])
 
-    for item in maxphrase:
-        for it in item:
-            print 'Maxphrase: ', ''.join(it), item
-    print 'Maxlen: ', maxlen
+    return maxlen
+
+
+def split_phrases_by_length(phrases):
+    rez = dict()
+    maxl = max_phraselen(phrases)
+    for i in range(1, maxl+1):
+        rez[i] = dict()
+
+    for single in phrases:
+        for item in phrases[single]:
+            rez[len(item)][single] = phrases[single]
+
+    print_struct(rez[maxl], 'Max: ')
+    print_struct(rez[maxl-1], 'Max-1: ')
+
+    return rez
+
+def phrase_lenstat(phrases):
+    spl = split_phrases_by_length(phrases)
+    for i in spl:
+        print 'Length: ', i, ', # of phrases: ', len(spl[i])
+
+
+def print_struct(phrases, prefix=''):
+    for key in phrases:
+        print prefix, 'Key: ', key
+        for item in phrases[key]:
+            print '   Item: ', ''.join(item)
+
 
 

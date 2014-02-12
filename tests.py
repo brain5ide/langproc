@@ -39,7 +39,18 @@ def test_dict(plaintext, wlist):
     possible5 = gen.phrases(dict(words.items() + possible4_phrase.items()))
     possible5_phrase = gen.possible_phrases(possible5, scrambled)
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(possible5_phrase)
+    #pp.pprint(possible5_phrase)
+    finaldict = gen.phrase_mid(dict(words.items() + possible5_phrase.items()))
+
+    #phrcombo = gen.loose_phrases(dict(lensplit[11].items() + lensplit[10].items()))
+    phrcombo = gen.loose_phrases(finaldict)
+    poscombo = gen.possible_phrases(phrcombo, scrambled)
+    poscombolen = gen.max_phraselen(poscombo)
+    poscombo_mid = gen.phrase_mid(poscombo)
+
+    phrcombo2 = gen.loose_phrases(poscombo_mid)
+    poscombo2 = gen.possible_phrases(phrcombo2, scrambled)
+    poscombo2len = gen.max_phraselen(poscombo2)
 
     print 'Phrase2_beg: ', phrase2_beg
     print 'Phrase2_end: ', phrase2_end
@@ -60,8 +71,21 @@ def test_dict(plaintext, wlist):
     print 'Len with possible5: ', len(possible5)
     print 'Possible5 len: ', len(possible5_phrase)
 
-    gen.max_phraselen(possible4_phrase)
+    print 'Len finaldict: ', len(finaldict)
+    print 'Mid phrases: ', len(gen.phrase_mid(finaldict))
 
+    print 'Len phrcombo: ', len(phrcombo)
+    print 'Pos phrcombo: ', len(poscombo)
+    print 'Max phrcombo: ', poscombolen
+    print 'Mid poscombo: ', len(poscombo_mid)
+
+    print 'Len phrcombo2: ', len(phrcombo2)
+    print 'Pos phrcombo2: ', len(poscombo2)
+    print 'Max phrcombo2: ', poscombo2len
+
+    gen.phrase_lenstat(poscombo)
+    print 'DIFFPHRASE'
+    #gen.phrase_lenstat(poscombo2)
     #phrase_phrase = gen.phrases(phrases)
     #used = gen.used_triplets(words)
     #print 'Words: ', used
