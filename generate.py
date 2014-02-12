@@ -10,12 +10,17 @@ import re
 # itertools helps to create permutations
 import itertools
 
+import pprint
+
 deep = ''
 
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
+punc = ' .,?!\(\);:\-'
+
 
 def triplet_permutations(syms, wordlist):
-    punct = '[ .,?!\(\);:\-]'
+    global punc
+    punct = '[' + punc + ']'
     symperm = itertools.permutations(syms, 3)
     symlist = [''.join(p) for p in symperm]
     symdict = dict((key, []) for key in symlist)
@@ -121,7 +126,7 @@ def fit_wordset(words, tripletPool, start=''):
                 if dset is not True:
                     deep = deep+'->'+key
                     dset = True
-                print deep, key, word_dict[key], tripletPool, start
+                print deep, key , word_dict[key], tripletPool, start
                 tryword = word
 
                 word_dic = word_dict.copy()
@@ -201,7 +206,7 @@ def smart_words(wlist, crypt, permlength=3):
     perms = [''.join(p) for p in permutations]
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
-    permwords = [[w, sublist[1]] for sublist in permarr for w in sublist[0].strip().split(' ')]
+    permwords = [[w, sublist[1]] for sublist in permarr for w in re.findall(r"[\w']+|[.,!?;:\(\)]", sublist[0])]
     print 'Generating a dict'
     permdict = {}
     for key, value in permwords:
@@ -229,5 +234,89 @@ def smart_words(wlist, crypt, permlength=3):
             found[word] = permdict[word]
     print 'Found', len(found), 'words'
     return found
+
+def phrase_beg(word_dict):
+    """ pick words from dict that are a beginning of a phrase """
+    newdict = {}
+    for key in word_dict:
+        for item in word_dict[key]:
+            if re.match('[A-Za-z][ ][A-Za-z]', item[0]):
+                if key not in newdict:
+                    newdict[key] = [item]
+                else:
+                    newdict[key] = newdict[key] + [item]
+    return newdict
+
+def phrase_end(word_dict):
+    """ pick words from dict that are an ending of a phrase """
+    newdict = {}
+    for key in word_dict:
+        for item in word_dict[key]:
+            if re.match('[A-Za-z][ ][A-Za-z]', item[-1]):
+                if key not in newdict:
+                    newdict[key] = [item]
+                else:
+                    newdict[key] = newdict[key] + [item]
+    return newdict
+
+def phrases(word_dict):
+    phrases = {}
+    for key in word_dict:
+        for item in word_dict[key]:
+            if re.match('[A-Za-z][ ][A-Za-z]', item[-1]):
+                for key2 in word_dict:
+                    for item2 in word_dict[key2]:
+                        if item[-1] == item2[0]:
+                            joinkey = key+' '+key2
+                            if joinkey not in phrases:
+                                phrases[joinkey] = [item + item2[1:]]
+                            else:
+                                phrases[joinkey] = phrases[joinkey] + [item + item2[1:]]
+
+    return phrases
+
+def phrase_possible(phrase, triplets):
+    """ you give it a phrase and a list of triplets and it checks if
+        it is possible to build that phrase with those triplets
+    """
+    temp_trip = triplets[:]
+    res = []
+    for variant in phrase:
+        good = True
+        for item in variant:
+            if item not in temp_trip:
+                good = False
+            else:
+                temp_trip.remove(item)
+        if good == True:
+            res.append(variant)
+    return res
+
+
+def possible_phrases(phrases, triplets):
+    res = dict()
+    for phr in phrases:
+        pos = phrase_possible(phrases[phr], triplets)
+        if len(pos) > 0:
+            res[phr] = pos
+    return res
+
+
+def max_phraselen(phrases):
+    maxlen = 0
+    maxphrase = []
+    for phr in phrases:
+        for item in phrases[phr]:
+            ln = len(item)
+            if ln > maxlen:
+                maxlen = ln
+                maxphrase = []
+            if ln == maxlen:
+                maxphrase.append(phrases[phr])
+
+    for item in maxphrase:
+        for it in item:
+            print 'Maxphrase: ', ''.join(it), item
+    print 'Maxlen: ', maxlen
 
 
