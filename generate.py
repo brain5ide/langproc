@@ -17,156 +17,6 @@ deep = ''
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
 punc = '.,?!\(\);:\-'
 
-
-def triplet_permutations(syms, wordlist):
-    global punc
-    punct = '[' + punc + ']'
-    symperm = itertools.permutations(syms, 3)
-    symlist = [''.join(p) for p in symperm]
-    symdict = dict((key, []) for key in symlist)
-
-    found = 0
-    alnum = [key for key in symdict if re.match('[a-z][a-z][a-z]', key)]
-    end1 = [key for key in symdict if re.match('[a-z]'+punct+punct, key)]
-    end2 = [key for key in symdict if re.match('[a-z][a-z]'+punct, key)]
-    beg1 = [key for key in symdict if re.match(punct+'[a-z][a-z]', key)]
-    beg2 = [key for key in symdict if re.match(punct+punct+'[a-z]', key)]
-
-    print 'all: ', len(symdict)
-    print 'alnum: ', len(alnum)
-    print 'end1: ', len(end1)
-    print 'end2: ', len(end2)
-    print 'beg1: ', len(beg1)
-    print 'beg2: ', len(beg2)
-
-    wordnum = 0
-    for word in wordlist:
-        wordnum += 1
-        print wordnum, found
-        for key in alnum:
-            # if all symbols are alphanumeric
-            if key in word:
-                symdict[key].append(word)
-                found += 1
-                #print 'alnum', found
-        for key in end1:
-            if key[0] == word[-1]:
-                symdict[key].append(word)
-                found += 1
-                #print 'end1', found
-        for key in end2:
-            if key[0:2] == word[-2:]:
-                symdict[key].append(word)
-                found += 1
-                #print 'end2', found
-        for key in beg1:
-            if key[2] == word[0]:
-                symdict[key].append(word)
-                found += 1
-                #print 'beg1', found
-        for key in beg2:
-            if key[1:] == word[0:2]:
-                symdict[key].append(word)
-                found += 1
-                #print 'beg2', found
-    print found
-
-def dam_lev_dist(s1, s2, trans=False):
-    """ calculate modified Damerau-Levenshtein distance between to given
-    strings don't calculate insertion and deletion distance
-    by default don't calculate transposition distance but
-    if trans == True  - calculate transposition distance
-
-    """
-
-    d = {}
-    lenstr1 = len(s1)
-    lenstr2 = len(s2)
-    for i in xrange(-1, lenstr1 + 1):
-        d[(i, -1)] = i + 1
-    for j in xrange(-1, lenstr2 + 1):
-        d[(-1, j)] = j + 1
-
-    for i in xrange(lenstr1):
-        for j in xrange(lenstr2):
-            if s1[i] == s2[j]:
-                cost = 0
-            else:
-                cost = 1
-            d[(i, j)] = d[(i - 1, j - 1)] + cost  # substitution
-            if trans is True:
-                if i and j and s1[i] == s2[j - 1] and s1[i - 1] == s2[j]:
-                    # transposition
-                    d[(i, j)] = min(d[(i, j)], d[i - 2, j - 2] + cost)
-    return d[lenstr1 - 1, lenstr2 - 1]
-
-def fit_wordset(words, tripletPool, start=''):
-    global deep
-    LeftInPool = len(tripletPool)
-
-    dset = False
-    word_dict = words.copy()
-    result = []
-    for key in word_dict:
-        for word in word_dict[key]:
-
-            if start != '' and word[0] != start:
-                continue
-            tripletsInPool = True
-
-            if start != '':
-                word_triplets = word[1:]
-            else:
-                word_triplets = word
-
-            for triplet in word_triplets:
-                if triplet not in tripletPool:
-                    tripletsInPool = False
-            if tripletsInPool is True:
-                if dset is not True:
-                    deep = deep+'->'+key
-                    dset = True
-                print deep, key , word_dict[key], tripletPool, start
-                tryword = word
-
-                word_dic = word_dict.copy()
-                newPool = tripletPool[:]
-                for y in tryword:
-                    if y in newPool:
-                        newPool.remove(y)
-
-                all_a = re.match('[a-zA-Z][a-zA-Z][a-zA-Z]', tryword[-1])
-                two_a = re.match('[a-zA-Z][a-zA-Z][ .,?!\(\);:\-]', tryword[-1])
-                one_a = re.match('[a-zA-Z][ .,?!\(\);:\-][ .,?!\(\);:\-]', tryword[-1])
-                if all_a or two_a or one_a:
-                    connecting_triplet = ''
-                else:
-                    connecting_triplet = tryword[-1]
-
-                arranged, pleft = fit_wordset(word_dic, newPool, connecting_triplet)
-
-                if pleft < LeftInPool:
-                    result = []
-                    LeftInPool = pleft
-
-                if pleft == LeftInPool:
-                    for item in arranged:
-                        if connecting_triplet == '':
-                            result.append([tryword + item[0], [key] + item[1]])
-                        else:
-                            result.append([tryword[:-1] + item[0], [key] + item[1]])
-
-                if len(arranged) == 0:
-                    result.append([tryword, [key]])
-    deep = deep[:deep.rfind("->")]
-    dset = True
-    return result, LeftInPool
-
-
-def print_keys(dictionary):
-    for key in dictionary:
-        print '--', key
-
 def scramble(text):
     if len(text) % 3 == 1:
         text = text + '  '
@@ -176,19 +26,6 @@ def scramble(text):
     split = re.findall('...?', text)
     random.shuffle(split)
     return split
-
-
-def used_triplets(word_dict):
-    used = {}
-    for key in word_dict:
-        concat = ''.join(word_dict[key])
-        mobj = re.search(key, concat)
-        wordstart = int(math.floor(mobj.start() / 3))
-        wordend = int(math.floor(mobj.end() / 3))
-        if mobj.end() % 3 != 0:
-            wordend += 1
-        used[key] = word_dict[key][wordstart:wordend]
-    return used
 
 
 def smart_words(wlist, crypt, permlength=3):
@@ -285,22 +122,6 @@ def phrases(word_dict):
 
     return phrases
 
-def loose_phrases2(word_dict):
-    global punc
-    phrases = {}
-    for key1 in word_dict:
-        for item in word_dict[key1]:
-            if re.match('[A-Za-z][A-Za-z' + punc +'][A-Za-z ' + punc +']', item[-1]):
-                for key2 in word_dict:
-                    for item2 in word_dict[key2]:
-                        if re.match('[ ' + punc + '][A-Za-z ' + punc + '][A-Za-z]', item2[0]):
-                            joinkey = key1+key2
-                            if joinkey not in phrases:
-                                phrases[joinkey] = [item + item2]
-                            else:
-                                phrases[joinkey] = phrases[joinkey] + [item + item2]
-    return phrases
-
 def loose_phrases(word_dict, triplets):
     print 'Loose phrases'
     res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
@@ -308,33 +129,31 @@ def loose_phrases(word_dict, triplets):
     return res
 
 def items_match(item1, item2, triplets):
-    print 'Items: ', item1, '|', item2
     if len(item1)+len(item2) > len(triplets):
-        print 'A little too long'
         return False
     list1 = list(item1)
     list2 = list(item2)
     if len([it for it in triplets if it in list1+list2]) < len(list1+list2):
-        print 'Does not combine'
         return False
-    if not re.match('[A-Za-z][A-Za-z' + punc +'][A-Za-z ' + punc + ']', item1[-1]):
-        print 'Does not connect'
+
+    patterns = False
+    if re.match('[A-Za-z][A-Za-z][A-Za-z' + punc + ']', item1[-1]) and re.match('[ ][A-Za-z][A-Za-z]', item2[0]):
+        patterns = True
+    if re.match('[A-Za-z][' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z][A-Za-z]', item2[0]):
+        patterns = True
+    if patterns == False:
         return False
-    if not re.match('[ ' + punc +'][A-Za-z ' + punc + '][A-Za-z]', item2[0]):
-        print 'Does not follow'
-        return False
+
     if len(phrase_possible([item1+item2], triplets)) == 0:
-        print 'Not possible'
         return False
-    print 'True'
     return True
 
 runcount = 0
 def phrase_possible(phrase, triplets):
-    #global runcount
-    #runcount += 1
-    #if runcount % 100 == 0:
-    #    print 'Count: ', runcount
+    global runcount
+    runcount += 1
+    if runcount % 1000 == 0:
+        print 'Count: ', runcount
     """ you give it a phrase and a list of triplets and it checks if
         it is possible to build that phrase with those triplets
     """
@@ -349,14 +168,6 @@ def phrase_possible(phrase, triplets):
                 temp_trip.remove(item)
         if good == True:
             res.append(variant)
-    return res
-
-def possible_phrases2(phrases, triplets):
-    res = dict()
-    for phr in phrases:
-        pos = phrase_possible(phrases[phr], triplets)
-        if len(pos) > 0:
-            res[phr] = pos
     return res
 
 def possible_phrases(phrases, triplets):
@@ -388,8 +199,8 @@ def split_phrases_by_length(phrases):
         for item in phrases[single]:
             rez[len(item)][single] = phrases[single]
 
-    print_struct(rez[maxl], 'Max: ')
-    print_struct(rez[maxl-1], 'Max-1: ')
+    #print_struct(rez[maxl-1], 'Max-1: ')
+    #print_struct(rez[maxl], 'Max: ')
 
     return rez
 
