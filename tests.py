@@ -43,12 +43,14 @@ def test_dict(plaintext, wlist):
     finaldict = gen.phrase_mid(dict(words.items() + possible5_phrase.items()))
 
     #phrcombo = gen.loose_phrases(dict(lensplit[11].items() + lensplit[10].items()))
-    phrcombo = gen.loose_phrases(finaldict)
+    phrcombo = gen.loose_phrases(finaldict, scrambled)
     poscombo = gen.possible_phrases(phrcombo, scrambled)
     poscombolen = gen.max_phraselen(poscombo)
-    poscombo_mid = gen.phrase_mid(poscombo)
+    poscombo_mid = gen.phrase_mid(dict(poscombo.items()+finaldict.items()))
 
-    phrcombo2 = gen.loose_phrases(poscombo_mid)
+    midlen = len(poscombo_mid)
+    #phrcombo2 = gen.loose_phrases(dict(poscombo_mid.items()[:midlen] + poscombo_mid.items()[midlen+1:]), scrambled)
+    phrcombo2 = gen.loose_phrases(poscombo_mid, scrambled)
     poscombo2 = gen.possible_phrases(phrcombo2, scrambled)
     poscombo2len = gen.max_phraselen(poscombo2)
 
@@ -85,7 +87,7 @@ def test_dict(plaintext, wlist):
 
     gen.phrase_lenstat(poscombo)
     print 'DIFFPHRASE'
-    #gen.phrase_lenstat(poscombo2)
+    gen.phrase_lenstat(poscombo2)
     #phrase_phrase = gen.phrases(phrases)
     #used = gen.used_triplets(words)
     #print 'Words: ', used
@@ -112,6 +114,6 @@ def test_dict(plaintext, wlist):
     ### TODO IN HERE
     #print ' '
 
-test_string = ' Simple sentence, testing scrambled algorithm. Another one to check again!'
+test_string = 'Simple sentence, testing.' # scrambled algorithm. Another one to check again!'
 test_dict(test_string, allwords)
 #gen.triplet_permutations(gen.symbols, allwords)

@@ -228,10 +228,7 @@ def smart_words(wlist, crypt, permlength=3):
     print 'Permutations completed'
     print 'Number of unique permutations: ', len(permdict)
     print 'Starting search of known words'
-    found = {}
-    for word in wlist:
-        if word in permdict:
-            found[word] = permdict[word]
+    found = {word: permdict[word] for word in wlist if word in permdict}
     print 'Found', len(found), 'words'
     return found
 
@@ -304,19 +301,40 @@ def loose_phrases2(word_dict):
                                 phrases[joinkey] = phrases[joinkey] + [item + item2]
     return phrases
 
-def loose_phrases(word_dict):
-    res = {key1+key2: [item1+item2 if True in [items_match(item1, item2)] else ('  ', '  ') for item1 in word_dict[key1] for item2 in word_dict[key2]] for key1 in word_dict for key2 in word_dict}
+def loose_phrases(word_dict, triplets):
+    print 'Loose phrases'
+    res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
+    print 'Loose phr:', res
     return res
 
-def items_match(item1, item2):
+def items_match(item1, item2, triplets):
+    print 'Items: ', item1, '|', item2
+    if len(item1)+len(item2) > len(triplets):
+        print 'A little too long'
+        return False
+    list1 = list(item1)
+    list2 = list(item2)
+    if len([it for it in triplets if it in list1+list2]) < len(list1+list2):
+        print 'Does not combine'
+        return False
     if not re.match('[A-Za-z][A-Za-z' + punc +'][A-Za-z ' + punc + ']', item1[-1]):
+        print 'Does not connect'
         return False
     if not re.match('[ ' + punc +'][A-Za-z ' + punc + '][A-Za-z]', item2[0]):
+        print 'Does not follow'
         return False
-
+    if len(phrase_possible([item1+item2], triplets)) == 0:
+        print 'Not possible'
+        return False
+    print 'True'
     return True
 
+runcount = 0
 def phrase_possible(phrase, triplets):
+    #global runcount
+    #runcount += 1
+    #if runcount % 100 == 0:
+    #    print 'Count: ', runcount
     """ you give it a phrase and a list of triplets and it checks if
         it is possible to build that phrase with those triplets
     """
@@ -333,8 +351,7 @@ def phrase_possible(phrase, triplets):
             res.append(variant)
     return res
 
-
-def possible_phrases(phrases, triplets):
+def possible_phrases2(phrases, triplets):
     res = dict()
     for phr in phrases:
         pos = phrase_possible(phrases[phr], triplets)
@@ -342,6 +359,9 @@ def possible_phrases(phrases, triplets):
             res[phr] = pos
     return res
 
+def possible_phrases(phrases, triplets):
+    res = {phr: phrase_possible(phrases[phr], triplets) for phr in phrases if len(phrase_possible(phrases[phr], triplets))>0}
+    return res
 
 def max_phraselen(phrases):
     maxlen = 0
