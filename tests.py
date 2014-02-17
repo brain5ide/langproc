@@ -33,32 +33,44 @@ def test_dict(plaintext, wlist):
         curlen = newlen
 
     finaldict = gen.phrase_mid(dict(words.items() + phrases.items()))
-    print 'Finaldict: ', finaldict
+    print 'Finaldict: ', sorted(finaldict.items())
 
     # keep finaldict for future references if needed
     curdict = finaldict
+    finaldict = {key: finaldict[key] for key in finaldict if len(key)>3}
+    print 'Tru finaldict: ', sorted(finaldict.items())
     curlen = len(curdict)
 
-    while 1:
-        phrcombo = gen.loose_phrases(curdict, scrambled)
-        phrcombo_maxlen = gen.max_phraselen(phrcombo)
-        phrcombo_mid = gen.phrase_mid(dict(phrcombo.items()+finaldict.items()))
-        newlen = len(phrcombo_mid)
-        print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
-        if newlen <= curlen:
-            finalcombo = phrcombo_mid
-            break
-        curdict = phrcombo_mid
-        curlen = newlen
+    phrcombo = gen.loose_phrases(curdict, scrambled)
+    phrcombo_split = gen.split_phrases_by_length(phrcombo)
+    gen.phrase_lenstat(phrcombo)
+    newcombo = dict(phrcombo_split[5].items() + phrcombo_split[4].items()+phrcombo_split[3].items())
+    newphrcombo = gen.loose_phrases(newcombo, scrambled)
+    final_sentences = gen.sentences(newphrcombo)
+    gen.print_struct(final_sentences, 'Answer: ')
+    print 'Finaldict: ', len(finaldict), 'Curdict: ', len(curdict), ' Phrcombo: ', len(phrcombo)
+    print 'newphrcombo: ', len(newphrcombo)
+    print 'Sentences: ', len(final_sentences)
 
-    print 'Len phrases: ', len(phrases)
+    #gen.phrase_lenstat(newphrcombo)
+    #print 'Newphrcombo: ', len(newphrcombo)
 
-    print 'Len finaldict: ', len(finaldict)
-    print 'Mid phrases: ', len(gen.phrase_mid(finaldict))
+    #gen.print_struct(gen.sentences(phrcombo))
+    #while 1:
+    #    phrcombo = gen.loose_phrases(curdict, scrambled)
+    #    phrcombo_split = gen.split_phrases_by_length(phrcombo)
+    #    newlen = len(phrcombo)
+    #    print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
+    #    if newlen <= curlen:
+    #        finalcombo = phrcombo
+    #        break
+    #    curdict = phrcombo
+    #    curlen = newlen
 
-    print 'Len phrcombo: ', len(phrcombo)
+    #print 'Len phrases: ', len(phrases)
 
-    gen.phrase_lenstat(curdict)
+    #gen.phrase_lenstat(finalcombo)
+    print 'Input: ', len(scrambled), scrambled
 
-test_string = 'Single simple sentence. Another simple constructor.' # Another one to check again!'
+test_string = 'There is no sunshine when she is gone.' # Another one to check again!'
 test_dict(test_string, allwords)

@@ -12,6 +12,8 @@ import itertools
 
 import pprint
 
+import sys
+
 deep = ''
 
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
@@ -43,13 +45,17 @@ def smart_words(wlist, crypt, permlength=3):
     perms = [''.join(p) for p in permutations]
     print 'Making a flat list of permutations'
     permarr = zip(perms, permutations)
-    permwords = [[w, sublist[1]] for sublist in permarr for w in re.findall(r"[\w']+|[.,!?;:\(\)]", sublist[0])]
+    print 'Permarr: ', permarr[0:10]
+    permwords = [[w, sublist[1]] for sublist in permarr for w in re.findall(r"\w+", sublist[0])]
     print 'Generating a dict'
     permdict = {}
     for key, value in permwords:
         concat = ''.join(value)
         key = key.lower()
-        mobj = re.search(key, concat.lower())
+        mobj = re.search(r"\b"+key+r"\b", concat.lower())
+        if not mobj:
+            continue
+        #mobj = re.search(key, concat.lower())
         wordstart = int(math.floor(mobj.start() / 3))
         wordend = int(math.floor(mobj.end() / 3))
         if mobj.end() % 3 != 0:
@@ -123,12 +129,17 @@ def phrases(word_dict):
     return phrases
 
 def loose_phrases(word_dict, triplets):
-    print 'Loose phrases'
     res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
-    print 'Loose phr:', res
     return res
 
+runcount = 0
 def items_match(item1, item2, triplets):
+    global runcount
+    runcount += 1
+    if runcount % 1000000 == 0:
+        print 'Count: ', runcount
+        sys.stdout.flush()
+
     if len(item1)+len(item2) > len(triplets):
         return False
     list1 = list(item1)
@@ -139,7 +150,7 @@ def items_match(item1, item2, triplets):
     patterns = False
     if re.match('[A-Za-z][A-Za-z][A-Za-z' + punc + ']', item1[-1]) and re.match('[ ][A-Za-z][A-Za-z]', item2[0]):
         patterns = True
-    if re.match('[A-Za-z][' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z][A-Za-z]', item2[0]):
+    if re.match('[A-Za-z][A-Za-z' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
         patterns = True
     if patterns == False:
         return False
@@ -148,12 +159,7 @@ def items_match(item1, item2, triplets):
         return False
     return True
 
-runcount = 0
 def phrase_possible(phrase, triplets):
-    global runcount
-    runcount += 1
-    if runcount % 1000 == 0:
-        print 'Count: ', runcount
     """ you give it a phrase and a list of triplets and it checks if
         it is possible to build that phrase with those triplets
     """
@@ -199,8 +205,8 @@ def split_phrases_by_length(phrases):
         for item in phrases[single]:
             rez[len(item)][single] = phrases[single]
 
-    #print_struct(rez[maxl-1], 'Max-1: ')
-    #print_struct(rez[maxl], 'Max: ')
+    print_struct(rez[maxl-1], 'Max-1: ')
+    print_struct(rez[maxl], 'Max: ')
 
     return rez
 
@@ -212,9 +218,28 @@ def phrase_lenstat(phrases):
 
 def print_struct(phrases, prefix=''):
     for key in phrases:
-        print prefix, 'Key: ', key
+        #print prefix, 'Key: ', key
         for item in phrases[key]:
-            print '   Item: ', ''.join(item)
+            print prefix, ''.join(item)
 
+
+def sentences(phrases):
+    rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item)) is True}
+    return rez
+
+
+def valid_sentence(string):
+    expr = "[A-Z]"
+    expr += "(?:[^.?!]+|"
+    expr += "[^a-zA-Z0-9-_]"
+    expr += "(?:[a-zA-Z0-9-_].\d+\.|a\.[\s\-]?A\.)"
+    expr += ")"
+    expr += "{3,}[\.\?\!]+(?!\s[a-z])"
+
+    sentences = re.findall(expr, string + ' .')
+    if ' '.join(sentences) != string.strip():
+        return False
+    else:
+        return True
 
 
