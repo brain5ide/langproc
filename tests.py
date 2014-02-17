@@ -44,9 +44,30 @@ def test_dict(plaintext, wlist):
     phrcombo = gen.loose_phrases(curdict, scrambled)
     phrcombo_split = gen.split_phrases_by_length(phrcombo)
     gen.phrase_lenstat(phrcombo)
-    newcombo = dict(phrcombo_split[5].items() + phrcombo_split[4].items()+phrcombo_split[3].items())
+
+    newcombo = phrcombo #dict(phrcombo_split[7].items() + phrcombo_split[6].items()+phrcombo_split[5].items()+phrcombo_split[3].items())
     newphrcombo = gen.loose_phrases(newcombo, scrambled)
-    final_sentences = gen.sentences(newphrcombo)
+    gen.phrase_lenstat(newphrcombo)
+
+    gen.print_struct(newphrcombo, 'Semi: ')
+
+    newcomb = newphrcombo
+    puncts = gen.punct_only(scrambled)
+    print puncts
+    newphrcomb = gen.loose_phrases(dict(newcomb.items() + puncts.items()), scrambled)
+    gen.phrase_lenstat(newphrcomb)
+    gen.print_struct(newphrcomb, 'Half: ')
+
+    newcom = newphrcomb
+    puncts = gen.punct_only(scrambled)
+    print puncts
+    newphrcom = gen.loose_phrases(dict(newcom.items() + puncts.items()), scrambled)
+    gen.phrase_lenstat(newphrcom)
+
+    final = gen.split_phrases_by_length(newphrcom)
+    maxlen = gen.max_phraselen(newphrcom)
+    final_sentences = gen.sentences(final[maxlen])
+
     gen.print_struct(final_sentences, 'Answer: ')
     print 'Finaldict: ', len(finaldict), 'Curdict: ', len(curdict), ' Phrcombo: ', len(phrcombo)
     print 'newphrcombo: ', len(newphrcombo)
@@ -72,5 +93,5 @@ def test_dict(plaintext, wlist):
     #gen.phrase_lenstat(finalcombo)
     print 'Input: ', len(scrambled), scrambled
 
-test_string = 'There is no sunshine when she is gone.' # Another one to check again!'
+test_string = 'There is no sunshine. She is gone.' # Another one to check again!'
 test_dict(test_string, allwords)

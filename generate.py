@@ -130,7 +130,7 @@ def phrases(word_dict):
 
 def loose_phrases(word_dict, triplets):
     res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
-    return res
+    return dict(res.items() + word_dict.items())
 
 runcount = 0
 def items_match(item1, item2, triplets):
@@ -140,11 +140,21 @@ def items_match(item1, item2, triplets):
         print 'Count: ', runcount
         sys.stdout.flush()
 
+    debug = 0
+    if ''.join(item1) == 'There is no sunshine.':
+        if ''.join(item2) == ' She is gone':
+            debug = 1
+            print 'Shes gone'
+
     if len(item1)+len(item2) > len(triplets):
+        if debug == 1:
+            print 'Too long'
         return False
     list1 = list(item1)
     list2 = list(item2)
     if len([it for it in triplets if it in list1+list2]) < len(list1+list2):
+        if debug == 1:
+            print 'Too much triplets'
         return False
 
     patterns = False
@@ -152,11 +162,20 @@ def items_match(item1, item2, triplets):
         patterns = True
     if re.match('[A-Za-z][A-Za-z' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
         patterns = True
+    if re.match('[A-Za-z][A-Za-z][A-Za-z]', item1[-1]) and re.match('[ '+punc+'][ '+punc+'][ '+punc+']', item2[0]):
+        patterns = True
     if patterns == False:
+        if debug == 1:
+            print 'Dont match'
         return False
 
     if len(phrase_possible([item1+item2], triplets)) == 0:
+        if debug == 1:
+            print 'Not possible'
         return False
+
+    if debug == 1:
+        print 'Works'
     return True
 
 def phrase_possible(phrase, triplets):
@@ -205,12 +224,13 @@ def split_phrases_by_length(phrases):
         for item in phrases[single]:
             rez[len(item)][single] = phrases[single]
 
-    print_struct(rez[maxl-1], 'Max-1: ')
-    print_struct(rez[maxl], 'Max: ')
+    #print_struct(rez[maxl-1], 'Max-1: ')
+    #print_struct(rez[maxl], 'Max: ')
 
     return rez
 
 def phrase_lenstat(phrases):
+    print 'Lenstat: '
     spl = split_phrases_by_length(phrases)
     for i in spl:
         print 'Length: ', i, ', # of phrases: ', len(spl[i])
@@ -225,6 +245,15 @@ def print_struct(phrases, prefix=''):
 
 def sentences(phrases):
     rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item)) is True}
+    return rez
+
+
+def punct_only(triplets):
+    global punc
+    rez = dict()
+    for item in triplets:
+        if re.search('['+punc+' ]['+punc+' ]['+punc+' ]', item):
+            rez[item] = [(item, )]
     return rez
 
 
