@@ -62,7 +62,12 @@ def test_dict(plaintext, wlist):
 
     final = gen.split_phrases_by_length(finalcombo)
     maxlen = gen.max_phraselen(finalcombo)
-    final_sentences = gen.sentences(final[maxlen])
+    printlen = maxlen
+    final_sentences = gen.sentences(final[printlen])
+    while len(final_sentences) == 0 and printlen != 0:
+        printlen -= 1
+        print 'Length ', printlen, ' has no valid sentences, in all', len(final[printlen]), 'of them.'
+        final_sentences = gen.sentences(final[printlen])
 
     gen.print_struct(final_sentences, 'Answer: ')
     print 'Finaldict: ', len(finaldict), 'Curdict: ', len(curdict), ' Phrcombo: ', len(phrcombo)
