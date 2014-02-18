@@ -1,6 +1,11 @@
 import generate as gen
 import re
 import pprint
+import sys
+import getopt
+
+from pycallgraph import PyCallGraph
+from pycallgraph.output import GraphvizOutput
 
 wordfile = 'wordlists/EN.txt'
 
@@ -20,11 +25,11 @@ def test_dict(plaintext, wlist):
     print 'All words: ', words
     phrases = gen.possible_phrases(gen.phrases(words), scrambled)
     print 'Phrases: ', phrases
-    curlen = len(phrases)+len(words)
+    curlen = len(phrases) + len(words)
     while 1:
         newphr = gen.phrases(dict(words.items() + phrases.items()))
         newpos = gen.possible_phrases(newphr, scrambled)
-        newlen = len(newpos)+len(words)
+        newlen = len(newpos) + len(words)
         print 'Strict: Last iteration: ', curlen, ' New iteration: ', newlen
         if newlen <= curlen:
             phrases = newpos
@@ -37,7 +42,7 @@ def test_dict(plaintext, wlist):
 
     # keep finaldict for future references if needed
     curdict = finaldict
-    finaldict = {key: finaldict[key] for key in finaldict if len(key)>3}
+    finaldict = {key: finaldict[key] for key in finaldict if len(key) > 3}
     print 'Tru finaldict: ', sorted(finaldict.items())
     curlen = len(curdict)
 
@@ -49,14 +54,11 @@ def test_dict(plaintext, wlist):
     newphrcombo = gen.loose_phrases(newcombo, scrambled)
     gen.phrase_lenstat(newphrcombo)
 
-    gen.print_struct(newphrcombo, 'Semi: ')
-
     newcomb = newphrcombo
     puncts = gen.punct_only(scrambled)
     print puncts
     newphrcomb = gen.loose_phrases(dict(newcomb.items() + puncts.items()), scrambled)
     gen.phrase_lenstat(newphrcomb)
-    gen.print_struct(newphrcomb, 'Half: ')
 
     newcom = newphrcomb
     puncts = gen.punct_only(scrambled)
@@ -93,5 +95,41 @@ def test_dict(plaintext, wlist):
     #gen.phrase_lenstat(finalcombo)
     print 'Input: ', len(scrambled), scrambled
 
-test_string = 'There is no sunshine. She is gone.' # Another one to check again!'
-test_dict(test_string, allwords)
+
+def usage():
+    print 'Usage: '
+    print '-d for debug'
+    print 'Nothing for default values'
+    return
+
+
+def main(argv):
+    d_TestString = 'There is no sunshine. She is gone.'
+    debug = False
+    run = False
+    teststring = d_TestString
+
+    try:
+        opts, args = getopt.getopt(argv, "d", ["debug"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ("-d", "--debug"):
+            debug = True
+
+    if debug is True:
+        print 'Debug mode on'
+        with PyCallGraph(output=GraphvizOutput()):
+            run = True
+            test_dict(teststring, allwords)
+
+    if run is False:
+        test_dict(teststring, allwords)
+
+    return 0
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+

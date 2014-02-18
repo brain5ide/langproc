@@ -178,10 +178,9 @@ def items_match(item1, item2, triplets):
         print 'Works'
     return True
 
+
 def phrase_possible(phrase, triplets):
-    """ you give it a phrase and a list of triplets and it checks if
-        it is possible to build that phrase with those triplets
-    """
+    """ validates if a phrase is possible with given triplets """
     temp_trip = triplets[:]
     res = []
     for variant in phrase:
@@ -191,9 +190,10 @@ def phrase_possible(phrase, triplets):
                 good = False
             else:
                 temp_trip.remove(item)
-        if good == True:
+        if good==True:
             res.append(variant)
     return res
+
 
 def possible_phrases(phrases, triplets):
     res = {phr: phrase_possible(phrases[phr], triplets) for phr in phrases if len(phrase_possible(phrases[phr], triplets))>0}
