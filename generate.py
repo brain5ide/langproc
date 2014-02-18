@@ -24,6 +24,7 @@ punc = '.,?!\(\);:\-'
 match_count = 0
 # how many phrases are predicted to match in current iteration
 match_predict = 0
+lastpr = 0.0
 
 
 def scramble(text):
@@ -138,8 +139,11 @@ def phrases(word_dict):
 def loose_phrases(word_dict, triplets):
     global match_count
     global match_predict
+    global lastpr
+
     match_count = 0
     match_predict = len(word_dict) ** 2
+    lastpr = 0.0
 
     res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
     return dict(res.items() + word_dict.items())
@@ -147,9 +151,12 @@ def loose_phrases(word_dict, triplets):
 def items_match(item1, item2, triplets):
     global match_count
     global match_predict
+    global lastpr
+
     match_count += 1
-    if match_count % 1000000 == 0:
-        percent = float(match_count)/match_predict * 100
+    percent = float(match_count)/match_predict * 100
+    if match_count % 1000000 == 0 or ((percent - lastpr) > 5.0) :
+        lastpr = percent
         print '[' + str(match_count) + ']/[' + str(match_predict) + ']', '%.2f'%percent, '%'
         sys.stdout.flush()
 

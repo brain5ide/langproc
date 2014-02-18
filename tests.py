@@ -70,27 +70,7 @@ def test_dict(plaintext, wlist):
         final_sentences = gen.sentences(final[printlen])
 
     gen.print_struct(final_sentences, 'Answer: ')
-    print 'Finaldict: ', len(finaldict), 'Curdict: ', len(curdict), ' Phrcombo: ', len(phrcombo)
-    print 'Sentences: ', len(final_sentences)
-
-    #gen.phrase_lenstat(newphrcombo)
-    #print 'Newphrcombo: ', len(newphrcombo)
-
-    #gen.print_struct(gen.sentences(phrcombo))
-    #while 1:
-    #    phrcombo = gen.loose_phrases(curdict, scrambled)
-    #    phrcombo_split = gen.split_phrases_by_length(phrcombo)
-    #    newlen = len(phrcombo)
-    #    print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
-    #    if newlen <= curlen:
-    #        finalcombo = phrcombo
-    #        break
-    #    curdict = phrcombo
-    #    curlen = newlen
-
-    #print 'Len phrases: ', len(phrases)
-
-    #gen.phrase_lenstat(finalcombo)
+    print len(final_sentences), 'sentences of', printlen, 'triplets'
     print 'Input: ', len(scrambled), scrambled
 
 
@@ -102,7 +82,7 @@ def usage():
 
 
 def main(argv):
-    d_TestString = 'There is no sunshine. She is gone. OK!'
+    d_TestString = 'Simple sentence testing scrambled algorithm. OK!'
     debug = False
     run = False
     teststring = d_TestString
