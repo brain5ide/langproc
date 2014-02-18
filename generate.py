@@ -19,6 +19,13 @@ deep = ''
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '.', ',', '?', '!', '(', ')', ':', ';', '-']
 punc = '.,?!\(\);:\-'
 
+# global counters
+# how many phrases were tried to match in current iteration
+match_count = 0
+# how many phrases are predicted to match in current iteration
+match_predict = 0
+
+
 def scramble(text):
     if len(text) % 3 == 1:
         text = text + '  '
@@ -129,15 +136,21 @@ def phrases(word_dict):
     return phrases
 
 def loose_phrases(word_dict, triplets):
+    global match_count
+    global match_predict
+    match_count = 0
+    match_predict = len(word_dict) ** 2
+
     res = {key1+key2: [item1+item2] for key1 in word_dict for key2 in word_dict for item1 in word_dict[key1] for item2 in word_dict[key2] if items_match(item1, item2, triplets) is True}
     return dict(res.items() + word_dict.items())
 
-runcount = 0
 def items_match(item1, item2, triplets):
-    global runcount
-    runcount += 1
-    if runcount % 1000000 == 0:
-        print 'Count: ', runcount
+    global match_count
+    global match_predict
+    match_count += 1
+    if match_count % 1000000 == 0:
+        percent = float(match_count)/match_predict * 100
+        print '[' + str(match_count) + ']/[' + str(match_predict) + ']', '%.2f'%percent, '%'
         sys.stdout.flush()
 
     debug = 0

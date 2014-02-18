@@ -104,7 +104,7 @@ def usage():
 
 
 def main(argv):
-    d_TestString = 'There is no sunshine. She is gone.'
+    d_TestString = 'There is no sunshine. She is gone. OK!'
     debug = False
     run = False
     teststring = d_TestString
