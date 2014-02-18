@@ -153,21 +153,11 @@ def items_match(item1, item2, triplets):
         print '[' + str(match_count) + ']/[' + str(match_predict) + ']', '%.2f'%percent, '%'
         sys.stdout.flush()
 
-    debug = 0
-    if ''.join(item1) == 'There is no sunshine.':
-        if ''.join(item2) == ' She is gone':
-            debug = 1
-            print 'Shes gone'
-
     if len(item1)+len(item2) > len(triplets):
-        if debug == 1:
-            print 'Too long'
         return False
     list1 = list(item1)
     list2 = list(item2)
     if len([it for it in triplets if it in list1+list2]) < len(list1+list2):
-        if debug == 1:
-            print 'Too much triplets'
         return False
 
     patterns = False
@@ -178,17 +168,11 @@ def items_match(item1, item2, triplets):
     if re.match('[A-Za-z][A-Za-z][A-Za-z]', item1[-1]) and re.match('[ '+punc+'][ '+punc+'][ '+punc+']', item2[0]):
         patterns = True
     if patterns == False:
-        if debug == 1:
-            print 'Dont match'
         return False
 
     if len(phrase_possible([item1+item2], triplets)) == 0:
-        if debug == 1:
-            print 'Not possible'
         return False
 
-    if debug == 1:
-        print 'Works'
     return True
 
 

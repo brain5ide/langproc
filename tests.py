@@ -46,33 +46,26 @@ def test_dict(plaintext, wlist):
     print 'Tru finaldict: ', sorted(finaldict.items())
     curlen = len(curdict)
 
-    phrcombo = gen.loose_phrases(curdict, scrambled)
-    phrcombo_split = gen.split_phrases_by_length(phrcombo)
-    gen.phrase_lenstat(phrcombo)
+    while 1:
+        phrcombo = gen.loose_phrases(curdict, scrambled)
+        newlen = len(phrcombo)
+        print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
+        if newlen <= curlen:
+            finalcombo = phrcombo
+            break
+        curdict = phrcombo
+        curlen = newlen
 
-    newcombo = phrcombo #dict(phrcombo_split[7].items() + phrcombo_split[6].items()+phrcombo_split[5].items()+phrcombo_split[3].items())
-    newphrcombo = gen.loose_phrases(newcombo, scrambled)
-    gen.phrase_lenstat(newphrcombo)
-
-    newcomb = newphrcombo
     puncts = gen.punct_only(scrambled)
-    print puncts
-    newphrcomb = gen.loose_phrases(dict(newcomb.items() + puncts.items()), scrambled)
-    gen.phrase_lenstat(newphrcomb)
+    if len(puncts) > 0:
+        finalcombo = gen.loose_phrases(dict(finalcombo.items() + puncts.items()), scrambled)
 
-    newcom = newphrcomb
-    puncts = gen.punct_only(scrambled)
-    print puncts
-    newphrcom = gen.loose_phrases(dict(newcom.items() + puncts.items()), scrambled)
-    gen.phrase_lenstat(newphrcom)
-
-    final = gen.split_phrases_by_length(newphrcom)
-    maxlen = gen.max_phraselen(newphrcom)
+    final = gen.split_phrases_by_length(finalcombo)
+    maxlen = gen.max_phraselen(finalcombo)
     final_sentences = gen.sentences(final[maxlen])
 
     gen.print_struct(final_sentences, 'Answer: ')
     print 'Finaldict: ', len(finaldict), 'Curdict: ', len(curdict), ' Phrcombo: ', len(phrcombo)
-    print 'newphrcombo: ', len(newphrcombo)
     print 'Sentences: ', len(final_sentences)
 
     #gen.phrase_lenstat(newphrcombo)
