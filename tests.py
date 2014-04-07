@@ -3,6 +3,7 @@ import re
 import pprint
 import sys
 import getopt
+import pickle
 
 from pycallgraph import PyCallGraph
 from pycallgraph.output import GraphvizOutput
@@ -57,12 +58,16 @@ def test_dict(plaintext, wlist):
         curlen = newlen
 
     puncts = gen.punct_only(scrambled)
+    print 'Triplets that contain only punctuation: ', len(puncts)
     if len(puncts) > 0:
+        print 'Including punct-only triplets in the queue.'
         finalcombo = gen.loose_phrases(dict(finalcombo.items() + puncts.items()), scrambled)
 
+    pickle.dump(finalcombo, open('finalcombo', 'w'))
     final = gen.split_phrases_by_length(finalcombo)
     maxlen = gen.max_phraselen(finalcombo)
     printlen = maxlen
+    print 'Filtering valid sentences.'
     final_sentences = gen.sentences(final[printlen])
     while len(final_sentences) == 0 and printlen != 0:
         printlen -= 1

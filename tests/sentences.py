@@ -40,6 +40,7 @@ tests.append(["this starts with a small letter and is false.", False])
 tests.append(["This sentence has abbr. but should be true.", True])
 tests.append(["This is valid. But. this is not", False])
 tests.append(["this is Not a valid sentence.", False])
+tests.append(["Simple sentence testing scrambled algorithm. OK!", True])
 
 for item in tests:
     rez = validation(item[0])
