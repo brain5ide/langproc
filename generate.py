@@ -153,7 +153,6 @@ def items_match(item1, item2, triplets):
     global match_predict
     global lastpr
 
-    debug = False
     match_count += 1
     percent = float(match_count)/match_predict * 100
     if match_count % 1000000 == 0 or ((percent - lastpr) > 5.0) :
@@ -168,38 +167,19 @@ def items_match(item1, item2, triplets):
     if len([it for it in triplets if it in list1+list2]) < len(list1+list2):
         return False
 
-    if item1[-1] == 'm. ':
-        print 'Ending'
-        if item2[0] == 'OK!':
-            print 'Beginning'
-            print ''.join(item1), ''.join(item2)
-            debug = True
-
     patterns = False
     if re.match('[A-Za-z][A-Za-z][A-Za-z' + punc + ']', item1[-1]) and re.match('[ ][A-Za-z][A-Za-z]', item2[0]):
-        if debug is True:
-           print 'Pattern 1'
         patterns = True
     if re.match('[A-Za-z][A-Za-z' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
-        if debug is True:
-            print 'Pattern 2'
         patterns = True
     if re.match('[A-Za-z][A-Za-z][A-Za-z]', item1[-1]) and re.match('[ '+punc+'][ '+punc+'][ '+punc+']', item2[0]):
-        if debug is True:
-            print 'Pattern 3'
         patterns = True
     if patterns == False:
-        if debug is True:
-            print 'Patterns'
         return False
 
     if len(phrase_possible([item1+item2], triplets)) == 0:
-        if debug is True:
-            print 'Not possible'
         return False
 
-    if debug is True:
-        print 'Passed'
     return True
 
 
@@ -286,7 +266,7 @@ def valid_sentence(string):
     expr += "[^a-zA-Z0-9-_]"
     expr += "(?:[a-zA-Z0-9-_].\d+\.|a\.[\s\-]?A\.)"
     expr += ")"
-    expr += "{3,}[\.\?\!]+(?!\s[a-z])"
+    expr += "{1,}[\.\?\!]+(?!\s[a-z])"
 
     sentences = re.findall(expr, string + ' .')
     if ' '.join(sentences) != string.strip():

@@ -1,6 +1,4 @@
 import generate as gen
-import re
-import pprint
 import sys
 import getopt
 import pickle
@@ -13,7 +11,6 @@ wordfile = 'wordlists/EN.txt'
 allwords = [w.strip() for w in open(wordfile, "rb").readlines()]
 
 TEST_COUNT = 0
-
 
 def test_dict(plaintext, wlist):
     global TEST_COUNT

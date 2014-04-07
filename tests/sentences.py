@@ -4,11 +4,11 @@ import re
 def validation(string):
 
     expr = "[A-Z]"
-    expr += "(?:[^.?!]+|"
-    expr += "[^a-zA-Z0-9-_]"
-    expr += "(?:[a-zA-Z0-9-_].\d+\.|a\.[\s\-]?A\.)"
+    expr += "(?:[^.?!]+"
+    expr += "|[^a-zA-Z0-9\-_]"
+    expr += "(?:[a-zA-Z0-9\-_].\d+\.|a\.[\s\-]?A\.)"
     expr += ")"
-    expr += "{3,}[\.\?\!]+(?!\s[a-z])"
+    expr += "{1,}[\.\?\!]+(?!\s[a-z])"
 
     sentences = re.findall(expr, string + ' .')
     print '\t', ' '.join(sentences)
@@ -42,6 +42,18 @@ tests.append(["This is valid. But. this is not", False])
 tests.append(["this is Not a valid sentence.", False])
 tests.append(["Simple sentence testing scrambled algorithm. OK!", True])
 
+passes = 0
+fails = 0
+
 for item in tests:
     rez = validation(item[0])
+
+    if (rez == item[1]) is True:
+        passes += 1
+    else:
+        fails += 1
+
     print rez == item[1], rez, item[1], '\t\t\t', item[0]
+
+print 'Passes: ', passes
+print 'Fails: ', fails
