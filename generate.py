@@ -10,8 +10,6 @@ import re
 # itertools helps to create permutations
 import itertools
 
-import pprint
-
 import sys
 
 deep = ''
@@ -27,7 +25,7 @@ match_predict = 0
 lastpr = 0.0
 
 
-def scramble(text):
+def Scramble(text):
     if len(text) % 3 == 1:
         text = text + '  '
     if len(text) % 3 == 2:
@@ -38,7 +36,7 @@ def scramble(text):
     return split
 
 
-def smart_words(wlist, crypt, permlength=3):
+def Words(wlist, crypt, permlength=3):
     cryptset = set(crypt)
     cryptlist = list(cryptset)
     tr_length = int(math.ceil(len(crypt)))
@@ -63,7 +61,6 @@ def smart_words(wlist, crypt, permlength=3):
         mobj = re.search(r"\b"+key+r"\b", concat.lower())
         if not mobj:
             continue
-        #mobj = re.search(key, concat.lower())
         wordstart = int(math.floor(mobj.start() / 3))
         wordend = int(math.floor(mobj.end() / 3))
         if mobj.end() % 3 != 0:
@@ -75,37 +72,12 @@ def smart_words(wlist, crypt, permlength=3):
         else:
             permdict[key] = [cleanword]
 
-    #permdict = dict((key, value) for [key, value] in permwords)
     print 'Permutations completed'
     print 'Number of unique permutations: ', len(permdict)
     print 'Starting search of known words'
     found = {word: permdict[word] for word in wlist if word in permdict}
     print 'Found', len(found), 'words'
     return found
-
-def phrase_beg(word_dict):
-    """ pick words from dict that are a beginning of a phrase """
-    newdict = {}
-    for key in word_dict:
-        for item in word_dict[key]:
-            if re.match('[A-Za-z][ ][A-Za-z]', item[0]):
-                if key not in newdict:
-                    newdict[key] = [item]
-                else:
-                    newdict[key] = newdict[key] + [item]
-    return newdict
-
-def phrase_end(word_dict):
-    """ pick words from dict that are an ending of a phrase """
-    newdict = {}
-    for key in word_dict:
-        for item in word_dict[key]:
-            if re.match('[A-Za-z][ ][A-Za-z]', item[-1]):
-                if key not in newdict:
-                    newdict[key] = [item]
-                else:
-                    newdict[key] = newdict[key] + [item]
-    return newdict
 
 def phrase_mid(word_dict):
     """ pick phrases from dict that are middle of a longer phrase """
@@ -120,7 +92,7 @@ def phrase_mid(word_dict):
                 newdict[key] = newdict[key] + [item]
     return newdict
 
-def phrases(word_dict):
+def StrictPhrases(word_dict):
     phrases = {}
     for key in word_dict:
         for item in word_dict[key]:
@@ -136,7 +108,7 @@ def phrases(word_dict):
 
     return phrases
 
-def loose_phrases(word_dict, triplets):
+def LoosePhrases(word_dict, triplets):
     global match_count
     global match_predict
     global lastpr
@@ -199,9 +171,39 @@ def phrase_possible(phrase, triplets):
     return res
 
 
-def possible_phrases(phrases, triplets):
+def PossiblePhrases(phrases, triplets):
     res = {phr: phrase_possible(phrases[phr], triplets) for phr in phrases if len(phrase_possible(phrases[phr], triplets))>0}
     return res
+
+def LoopPossiblePhrases(words, scrambled):
+    phrases = PossiblePhrases(StrictPhrases(words), scrambled)
+    curlen = len(phrases) + len(words)
+    while 1:
+        newphr = StrictPhrases(dict(words.items() + phrases.items()))
+        newpos = PossiblePhrases(newphr, scrambled)
+        newlen = len(newpos) + len(words)
+        if newlen <= curlen:
+            phrases = newpos
+            break
+        phrases = newpos
+        curlen = newlen
+    result = phrase_mid(dict(words.items() + phrases.items()))
+    return result
+
+def LoopLoosePhrases(curdict, scrambled):
+    curlen = len(curdict)
+    while 1:
+        phrcombo = LoosePhrases(curdict, scrambled)
+        newlen = len(phrcombo)
+        print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
+        if newlen <= curlen:
+            finalcombo = phrcombo
+            break
+        curdict = phrcombo
+        curlen = newlen
+
+    return finalcombo
+
 
 def max_phraselen(phrases):
     maxlen = 0
@@ -228,17 +230,7 @@ def split_phrases_by_length(phrases):
         for item in phrases[single]:
             rez[len(item)][single] = phrases[single]
 
-    #print_struct(rez[maxl-1], 'Max-1: ')
-    #print_struct(rez[maxl], 'Max: ')
-
     return rez
-
-def phrase_lenstat(phrases):
-    print 'Lenstat: '
-    spl = split_phrases_by_length(phrases)
-    for i in spl:
-        print 'Length: ', i, ', # of phrases: ', len(spl[i])
-
 
 def print_struct(phrases, prefix=''):
     for key in phrases:
@@ -247,7 +239,7 @@ def print_struct(phrases, prefix=''):
             print prefix, ''.join(item)
 
 
-def sentences(phrases):
+def Sentences(phrases):
     rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item)) is True}
     return rez
 
@@ -270,8 +262,10 @@ def valid_sentence(string):
 
     sentences = re.findall(expr, string + ' .')
     if ' '.join(sentences) != string.strip():
+        print 'Valid: ', string
         return False
     else:
+        print 'Invalid: ', string
         return True
 
 
