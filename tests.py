@@ -36,16 +36,8 @@ def test_dict(plaintext, wlist):
         print 'Including punct-only triplets in the queue.'
         finalcombo = gen.LoosePhrases(dict(finalcombo.items() + puncts.items()), scrambled)
 
-    final = gen.split_phrases_by_length(finalcombo)
-    maxlen = gen.max_phraselen(finalcombo)
-    printlen = maxlen
-    print 'Filtering valid sentences.'
-    final_sentences = gen.Sentences(final[printlen])
-    while len(final_sentences) == 0 and printlen != 0:
-        printlen -= 1
-        print 'Length ', printlen, ' has no valid sentences, in all', len(final[printlen]), 'of them.'
-        final_sentences = gen.Sentences(final[printlen])
-
+    final_sentences = gen.LoopSentences(finalcombo)
+    printlen = gen.max_phraselen(final_sentences)
     gen.print_struct(final_sentences, 'Answer: ')
     print len(final_sentences), 'sentences of', printlen, 'triplets'
     print 'Input: ', len(scrambled), scrambled
@@ -59,7 +51,7 @@ def usage():
 
 
 def main(argv):
-    d_TestString = 'Simple testing of a scrambled algorithm.'
+    d_TestString = 'Simple testing scrambled algorithm.'
     debug = False
     run = False
     teststring = d_TestString

@@ -238,6 +238,19 @@ def print_struct(phrases, prefix=''):
         for item in phrases[key]:
             print prefix, ''.join(item)
 
+def LoopSentences(finalcombo):
+    final = split_phrases_by_length(finalcombo)
+    maxlen = max_phraselen(finalcombo)
+    printlen = maxlen
+    print 'Filtering valid sentences.'
+    final_sentences = Sentences(final[printlen])
+    while len(final_sentences) == 0 and printeln != 0:
+        prinlen -= 1
+        print('Length ', printlen, ' ha not valid sentences, in all',
+            len(final[printlen]), 'of them')
+        final_sentences = Sentences(final[printlen])
+
+    return final_sentences
 
 def Sentences(phrases):
     rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item)) is True}
@@ -262,10 +275,8 @@ def valid_sentence(string):
 
     sentences = re.findall(expr, string + ' .')
     if ' '.join(sentences) != string.strip():
-        print 'Valid: ', string
         return False
     else:
-        print 'Invalid: ', string
         return True
 
 
