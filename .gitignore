@@ -1,2 +1,5 @@
 *.pyc
-hardcopy.1
+*.swp
+*.swo
+*.swm
+*.swn
