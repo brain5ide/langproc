@@ -37,16 +37,14 @@ def Scramble(text):
 
 
 def Words(wlist, crypt, permlength=3):
-    cryptset = set(crypt)
-    cryptlist = list(cryptset)
     tr_length = int(math.ceil(len(crypt)))
     print 'Triplet length of scrambled text: ', tr_length
     print 'Generating triplet permutations of length: ', permlength
     print 'Number of permutations: ', reduce(lambda x, y: x * y, list(xrange(int(math.ceil(len(crypt) / 3.0)), int(math.ceil(len(crypt) / 3 - permlength - 1)), -1)))
     if len(crypt) <= permlength:
-        permutations = [p for p in itertools.permutations(cryptlist)]
+        permutations = [p for p in itertools.permutations(crypt)]
     else:
-        permutations = [p for p in itertools.permutations(cryptlist, permlength)]
+        permutations = [p for p in itertools.permutations(crypt, permlength)]
     print 'Finding words in permutations'
     perms = [''.join(p) for p in permutations]
     print 'Making a flat list of permutations'
@@ -271,7 +269,7 @@ def valid_sentence(string):
     expr += "[^a-zA-Z0-9-_]"
     expr += "(?:[a-zA-Z0-9-_].\d+\.|a\.[\s\-]?A\.)"
     expr += ")"
-    expr += "{1,}[\.\?\!]+(?!\s[a-z])"
+    expr += "{1,}[\.\?\!]{1,3}"
 
     sentences = re.findall(expr, string + ' .')
     if ' '.join(sentences) != string.strip():

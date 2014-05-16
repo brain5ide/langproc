@@ -8,7 +8,7 @@ def validation(string):
     expr += "|[^a-zA-Z0-9\-_]"
     expr += "(?:[a-zA-Z0-9\-_].\d+\.|a\.[\s\-]?A\.)"
     expr += ")"
-    expr += "{1,}[\.\?\!]+(?!\s[a-z])"
+    expr += "{1,}[\.\?\!]{1,3}"
 
     sentences = re.findall(expr, string + ' .')
     print '\t', ' '.join(sentences)
@@ -41,6 +41,8 @@ tests.append(["This sentence has abbr. but should be true.", True])
 tests.append(["This is valid. But. this is not", False])
 tests.append(["this is Not a valid sentence.", False])
 tests.append(["Simple sentence testing scrambled algorithm. OK!", True])
+tests.append(["This sentence Should be valid. Rightly so.", True])
+tests.append(["This sentence; has two parts; and another one.", True])
 
 passes = 0
 fails = 0
