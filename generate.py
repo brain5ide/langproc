@@ -138,12 +138,14 @@ def items_match(item1, item2, triplets):
         return False
 
     patterns = False
-    if re.match('[A-Za-z][A-Za-z][A-Za-z' + punc + ']', item1[-1]) and re.match('[ ][A-Za-z][A-Za-z]', item2[0]):
+    if re.match('[A-Za-z]{1,3}[,!?.:;]{0,1} [A-Za-z]{1,3}', item1[-1]+item2[0]):
         patterns = True
-    if re.match('[A-Za-z][A-Za-z' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
-        patterns = True
-    if re.match('[A-Za-z][A-Za-z][A-Za-z]', item1[-1]) and re.match('[ '+punc+'][ '+punc+'][ '+punc+']', item2[0]):
-        patterns = True
+    #if re.match('[A-Za-z][A-Za-z][A-Za-z' + punc + ']', item1[-1]) and re.match('[ ][A-Za-z][A-Za-z]', item2[0]):
+    #    patterns = True
+    #if re.match('[A-Za-z][A-Za-z' + punc + '][ ]', item1[-1]) and re.match('[A-Za-z][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
+    #    patterns = True
+    #if re.match('[A-Za-z][A-Za-z][A-Za-z]', item1[-1]) and re.match('[ '+punc+'][A-Za-z '+punc+'][A-Za-z '+punc+']', item2[0]):
+    #    patterns = True
     if patterns == False:
         return False
 
@@ -190,8 +192,10 @@ def LoopPossiblePhrases(words, scrambled):
 
 def LoopLoosePhrases(curdict, scrambled):
     curlen = len(curdict)
+    f = open("LoosePhrases.log","w")
     while 1:
         phrcombo = LoosePhrases(curdict, scrambled)
+        f.write(phrcombo)
         newlen = len(phrcombo)
         print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
         if newlen <= curlen:
@@ -242,16 +246,16 @@ def LoopSentences(finalcombo):
     printlen = maxlen
     print 'Filtering valid sentences.'
     final_sentences = Sentences(final[printlen])
-    while len(final_sentences) == 0 and printeln != 0:
-        prinlen -= 1
+    while len(final_sentences) == 0 and printlen != 0:
+        printlen -= 1
         print('Length ', printlen, ' ha not valid sentences, in all',
             len(final[printlen]), 'of them')
         final_sentences = Sentences(final[printlen])
 
     return final_sentences
 
-def Sentences(phrases):
-    rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item)) is True}
+def Sentences(phrases, debug=False):
+    rez = {key: [item] for key in phrases for item in phrases[key] if valid_sentence(''.join(item), debug) is True}
     return rez
 
 
@@ -263,13 +267,16 @@ def punct_only(triplets):
             rez[item] = [(item, )]
     return rez
 
-def valid_sentence(string):
+def valid_sentence(string, debug=False):
     expr = "[A-Z]"
     expr += "(?:[^.?!]+|"
     expr += "[^a-zA-Z0-9-_]"
     expr += "(?:[a-zA-Z0-9-_].\d+\.|a\.[\s\-]?A\.)"
     expr += ")"
     expr += "{1,}[\.\?\!]{1,3}"
+
+    if debug is not False:
+        print 'Sentence: ', string
 
     sentences = re.findall(expr, string + ' .')
     if ' '.join(sentences) != string.strip():

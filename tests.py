@@ -25,6 +25,10 @@ def test_dict(plaintext, wlist):
     words = gen.Words(wlist, scrambled, 4)
     print 'All words: ', words
 
+    cont = int(raw_input('Continue [0/1]?'))
+    if cont == 0:
+        return
+
     finaldict = gen.LoopPossiblePhrases(words, scrambled)
     print 'Finaldict: ', sorted(finaldict.items())
 
@@ -34,7 +38,7 @@ def test_dict(plaintext, wlist):
     print 'Triplets that contain only punctuation: ', len(puncts)
     if len(puncts) > 0:
         print 'Including punct-only triplets in the queue.'
-        finalcombo = gen.LoosePhrases(dict(finalcombo.items() + puncts.items()), scrambled)
+        finalcombo = gen.LoosePhrases(dict(finalcombo.items() + finaldict.items() + puncts.items()), scrambled)
 
     final_sentences = gen.LoopSentences(finalcombo)
     printlen = gen.max_phraselen(final_sentences)
@@ -51,7 +55,7 @@ def usage():
 
 
 def main(argv):
-    d_TestString = 'Simple testing scrambled algorithm.'
+    d_TestString = ' Simple sentence and testing of scrambled algorithm. OK!'
     debug = False
     run = False
     teststring = d_TestString
