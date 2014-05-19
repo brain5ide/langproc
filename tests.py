@@ -25,10 +25,6 @@ def test_dict(plaintext, wlist):
     words = gen.Words(wlist, scrambled, 4)
     print 'All words: ', words
 
-    cont = int(raw_input('Continue [0/1]?'))
-    if cont == 0:
-        return
-
     finaldict = gen.LoopPossiblePhrases(words, scrambled)
     print 'Finaldict: ', sorted(finaldict.items())
 
@@ -55,7 +51,7 @@ def usage():
 
 
 def main(argv):
-    d_TestString = ' Simple sentence and testing of scrambled algorithm. OK!'
+    d_TestString = 'Sentence and testing of scrambled algorithm. OK!'
     debug = False
     run = False
     teststring = d_TestString

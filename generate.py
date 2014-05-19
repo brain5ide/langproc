@@ -192,10 +192,8 @@ def LoopPossiblePhrases(words, scrambled):
 
 def LoopLoosePhrases(curdict, scrambled):
     curlen = len(curdict)
-    f = open("LoosePhrases.log","w")
     while 1:
         phrcombo = LoosePhrases(curdict, scrambled)
-        f.write(phrcombo)
         newlen = len(phrcombo)
         print 'Loose: Last iteration: ', curlen, ' New iteration: ', newlen
         if newlen <= curlen:
